@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  // Primary Colors - Commercial Bank Qatar
+  // Primary Colors - Cbq
   static const Color primaryBurgundy = Color(0xFF8B1538);
   static const Color primaryBurgundyLight = Color(0xFFA91D4D);
   static const Color primaryBurgundyDark = Color(0xFF6B0F2A);
@@ -31,7 +31,7 @@ class AppTheme {
   static const Color tier3Text = Color(0xFF721c24);
 
   // UI Colors
-  static const Color backgroundLight = Color(0xFFF8F9FA);
+  static const Color backgroundLight = Color(0xFFFFFFFF); // Pure white
   static const Color cardBackground = Colors.white;
   static const Color sourceBackground = Color(0xFFE7F3FF);
   static const Color infoBannerBg = Color(0xFFE7F3FF);

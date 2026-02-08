@@ -402,10 +402,8 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        // Full screen gradient background
-        decoration: BoxDecoration(
-          gradient: AppTheme.backgroundGradient,
-        ),
+        // Full screen white background
+        color: Colors.white,
         child: SafeArea(
           child: Center(
             child: Container(
@@ -693,61 +691,47 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildInputArea() {
     return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: const BoxDecoration(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+      decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(
-          top: BorderSide(color: Color(0xFFdee2e6), width: 1),
+        border: const Border(
+          top: BorderSide(color: Color(0xFFe9ecef), width: 1),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, -2),
+          ),
+        ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Quick actions - 2x2 grid
-          Column(
+          // Quick actions - single row
+          Row(
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: _QuickActionChip(
-                      emoji: '🟢',
-                      label: 'Account Balance',
-                      onTap: () => _runScenario(1),
-                      isProcessing: _isProcessing,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _QuickActionChip(
-                      emoji: '🔵',
-                      label: 'Transaction Analysis',
-                      onTap: () => _runScenario(2),
-                      isProcessing: _isProcessing,
-                    ),
-                  ),
-                ],
+              _buildActionBtn(
+                icon: Icons.account_balance_wallet_outlined,
+                label: 'Balance',
+                onTap: () => _runScenario(1),
               ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: _QuickActionChip(
-                      emoji: '🔴',
-                      label: 'Loan Advice',
-                      onTap: () => _runScenario(3),
-                      isProcessing: _isProcessing,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _QuickActionChip(
-                      emoji: '⚠️',
-                      label: 'RM Recommendation',
-                      onTap: () => _runScenario(4),
-                      isProcessing: _isProcessing,
-                    ),
-                  ),
-                ],
+              const SizedBox(width: 8),
+              _buildActionBtn(
+                icon: Icons.receipt_long_outlined,
+                label: 'Transactions',
+                onTap: () => _runScenario(2),
+              ),
+              const SizedBox(width: 8),
+              _buildActionBtn(
+                icon: Icons.request_quote_outlined,
+                label: 'Loan',
+                onTap: () => _runScenario(3),
+              ),
+              const SizedBox(width: 8),
+              _buildActionBtn(
+                icon: Icons.people_outline,
+                label: 'RM Tips',
+                onTap: () => _runScenario(4),
               ),
             ],
           ),
@@ -770,14 +754,14 @@ class _ChatScreenState extends State<ChatScreen> {
                 button: true,
                 label: 'Send message',
                 child: Container(
-                  width: 48,
-                  height: 48,
+                  width: 44,
+                  height: 44,
                   decoration: BoxDecoration(
                     gradient: AppTheme.headerGradient,
                     shape: BoxShape.circle,
                   ),
                   child: IconButton(
-                    icon: const Icon(Icons.send, color: Colors.white, size: 22),
+                    icon: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
                     onPressed: _sendMessage,
                     tooltip: 'Send message',
                   ),
@@ -789,49 +773,54 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
     );
   }
-}
 
-class _QuickActionChip extends StatelessWidget {
-  final String emoji;
-  final String label;
-  final VoidCallback onTap;
-  final bool isProcessing;
-
-  const _QuickActionChip({
-    required this.emoji,
-    required this.label,
-    required this.onTap,
-    required this.isProcessing,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      enabled: !isProcessing,
-      label: label,
+  Widget _buildActionBtn({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return Expanded(
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: isProcessing ? null : onTap,
-          borderRadius: BorderRadius.circular(16),
-          child: Container(
-            width: double.infinity,
-            constraints: const BoxConstraints(minHeight: 44), // Touch target
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-            decoration: BoxDecoration(
-              color: isProcessing ? Colors.grey[200] : const Color(0xFFF8F9FA),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: isProcessing ? Colors.grey[300]! : const Color(0xFFdee2e6),
+          onTap: _isProcessing ? null : onTap,
+          borderRadius: BorderRadius.circular(10),
+          child: Opacity(
+            opacity: _isProcessing ? 0.5 : 1.0,
+            child: Container(
+              height: 36,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: AppTheme.primaryBurgundy.withOpacity(0.25),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.primaryBurgundy.withOpacity(0.06),
+                    blurRadius: 4,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
               ),
-            ),
-            child: Text(
-              '$emoji $label',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: AppTheme.fontSizeTiny,
-                color: isProcessing ? Colors.grey : AppTheme.textPrimary,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    icon,
+                    size: 15,
+                    color: AppTheme.primaryBurgundy,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    label,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -840,3 +829,4 @@ class _QuickActionChip extends StatelessWidget {
     );
   }
 }
+
