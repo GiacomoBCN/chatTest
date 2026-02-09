@@ -108,7 +108,7 @@ class _MessageBubbleState extends State<MessageBubble>
           shape: BoxShape.circle,
         ),
         child: Icon(
-          isUser ? Icons.person : Icons.smart_toy,
+          isUser ? Icons.person : Icons.auto_awesome,
           color: isUser ? Colors.white : AppTheme.primaryBurgundy,
           size: 22,
           semanticLabel: isUser ? 'User' : 'AI Assistant',

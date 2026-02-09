@@ -48,29 +48,17 @@ class UncertaintyBar extends StatelessWidget {
                   // Confirmed segment (solid green)
                   Expanded(
                     flex: data.confirmedPercent.round(),
-                    child: Container(
-                      color: AppTheme.confidenceHigh,
-                    ),
+                    child: Container(color: AppTheme.confidenceHigh),
                   ),
-                  // Estimated segment (diagonal stripes yellow)
+                  // Estimated segment (solid yellow)
                   Expanded(
                     flex: data.estimatedPercent.round(),
-                    child: CustomPaint(
-                      painter: _DiagonalStripesPainter(
-                        color: AppTheme.confidenceMedium,
-                      ),
-                      child: Container(),
-                    ),
+                    child: Container(color: AppTheme.confidenceMedium),
                   ),
-                  // Uncertain segment (dotted red)
+                  // Uncertain segment (solid red)
                   Expanded(
                     flex: data.uncertainPercent.round(),
-                    child: CustomPaint(
-                      painter: _DottedPainter(
-                        color: AppTheme.confidenceLow,
-                      ),
-                      child: Container(),
-                    ),
+                    child: Container(color: AppTheme.confidenceLow),
                   ),
                 ],
               ),
