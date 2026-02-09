@@ -55,16 +55,7 @@ class _ConfidenceIndicatorState extends State<ConfidenceIndicator>
     }
   }
 
-  Color get _textColor {
-    switch (widget.level) {
-      case ConfidenceLevel.high:
-        return AppTheme.confidenceHigh;
-      case ConfidenceLevel.medium:
-        return AppTheme.textPrimary;
-      case ConfidenceLevel.low:
-        return AppTheme.confidenceLow;
-    }
-  }
+  Color get _textColor => AppTheme.textPrimary;
 
   Color get _backgroundColor {
     switch (widget.level) {
