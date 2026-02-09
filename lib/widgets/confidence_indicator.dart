@@ -55,6 +55,17 @@ class _ConfidenceIndicatorState extends State<ConfidenceIndicator>
     }
   }
 
+  Color get _textColor {
+    switch (widget.level) {
+      case ConfidenceLevel.high:
+        return AppTheme.confidenceHigh;
+      case ConfidenceLevel.medium:
+        return AppTheme.textPrimary;
+      case ConfidenceLevel.low:
+        return AppTheme.confidenceLow;
+    }
+  }
+
   Color get _backgroundColor {
     switch (widget.level) {
       case ConfidenceLevel.high:
@@ -106,7 +117,7 @@ class _ConfidenceIndicatorState extends State<ConfidenceIndicator>
                     fontSize: AppTheme.fontSizeXSmall,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.5,
-                    color: _accentColor,
+                    color: _textColor,
                   ),
                 ),
                 Row(
@@ -120,7 +131,7 @@ class _ConfidenceIndicatorState extends State<ConfidenceIndicator>
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
-                        color: _accentColor,
+                        color: _textColor,
                       ),
                     ),
                   ],
@@ -158,7 +169,7 @@ class _ConfidenceIndicatorState extends State<ConfidenceIndicator>
               _label,
               style: TextStyle(
                 fontSize: AppTheme.fontSizeXSmall,
-                color: _accentColor.withOpacity(0.9),
+                color: _textColor.withOpacity(0.9),
               ),
             ),
           ],

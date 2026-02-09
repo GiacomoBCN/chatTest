@@ -140,21 +140,9 @@ class _LegendItem extends StatelessWidget {
                 width: 16,
                 height: 16,
                 decoration: BoxDecoration(
-                  color: pattern == _LegendPattern.solid ? color : null,
+                  color: color,
                   borderRadius: BorderRadius.circular(2),
-                  border: pattern != _LegendPattern.solid
-                      ? Border.all(color: color, width: 2)
-                      : null,
                 ),
-                child: pattern == _LegendPattern.striped
-                    ? CustomPaint(
-                        painter: _DiagonalStripesPainter(color: color, small: true),
-                      )
-                    : pattern == _LegendPattern.dotted
-                        ? CustomPaint(
-                            painter: _DottedPainter(color: color, small: true),
-                          )
-                        : null,
               ),
               const SizedBox(width: 4),
               Text(
