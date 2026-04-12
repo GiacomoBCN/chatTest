@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../models/message.dart';
+import '../language_provider.dart';
 
 class UncertaintyBar extends StatelessWidget {
   final UncertaintyData data;
@@ -19,6 +20,7 @@ class UncertaintyBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isArabic = LanguageProvider.of(context).isArabic;
     return Container(
       padding: const EdgeInsets.all(AppTheme.paddingMedium),
       decoration: BoxDecoration(
@@ -29,9 +31,9 @@ class UncertaintyBar extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Data Certainty Breakdown',
-            style: TextStyle(
+          Text(
+            isArabic ? 'تفاصيل يقين البيانات' : 'Data Certainty Breakdown',
+            style: const TextStyle(
               fontSize: AppTheme.fontSizeBody,
               fontWeight: FontWeight.bold,
               color: AppTheme.textPrimary,
@@ -70,7 +72,7 @@ class UncertaintyBar extends StatelessWidget {
             children: [
               _LegendItem(
                 color: AppTheme.confidenceHigh,
-                label: 'Confirmed',
+                label: isArabic ? 'مؤكد' : 'Confirmed',
                 amount: _formatAmount(data.confirmedAmount),
                 percent: '${data.confirmedPercent.round()}%',
                 pattern: _LegendPattern.solid,
@@ -78,7 +80,7 @@ class UncertaintyBar extends StatelessWidget {
               const SizedBox(width: 16),
               _LegendItem(
                 color: AppTheme.confidenceMedium,
-                label: 'Estimated',
+                label: isArabic ? 'مقدّر' : 'Estimated',
                 amount: _formatAmount(data.estimatedAmount),
                 percent: '${data.estimatedPercent.round()}%',
                 pattern: _LegendPattern.striped,
@@ -86,7 +88,7 @@ class UncertaintyBar extends StatelessWidget {
               const SizedBox(width: 16),
               _LegendItem(
                 color: AppTheme.confidenceLow,
-                label: 'Uncertain',
+                label: isArabic ? 'غير محدد' : 'Uncertain',
                 amount: _formatAmount(data.uncertainAmount),
                 percent: '${data.uncertainPercent.round()}%',
                 pattern: _LegendPattern.dotted,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../models/message.dart';
+import '../language_provider.dart';
 
 class TierBadge extends StatelessWidget {
   final TierLevel tier;
@@ -34,20 +35,23 @@ class TierBadge extends StatelessWidget {
     }
   }
 
-  String get _label {
+  String _label(bool isArabic) {
     if (customLabel != null) return customLabel!;
     switch (tier) {
       case TierLevel.tier1:
-        return 'Tier 1: Factual Query';
+        return isArabic ? 'المستوى 1: استعلام واقعي' : 'Tier 1: Factual Query';
       case TierLevel.tier2:
-        return 'Tier 2: Interpretive Analysis';
+        return isArabic ? 'المستوى 2: تحليل تفسيري' : 'Tier 2: Interpretive Analysis';
       case TierLevel.tier3:
-        return 'Tier 3: Advisory Query - Human Handoff Required';
+        return isArabic
+            ? 'المستوى 3: استعلام استشاري - يتطلب تدخلاً بشرياً'
+            : 'Tier 3: Advisory Query - Human Handoff Required';
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isArabic = LanguageProvider.of(context).isArabic;
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: 10,
@@ -58,7 +62,7 @@ class TierBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
-        _label,
+        _label(isArabic),
         style: TextStyle(
           fontSize: AppTheme.fontSizeTiny,
           fontWeight: FontWeight.w600,

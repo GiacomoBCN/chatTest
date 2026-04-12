@@ -1,0 +1,130 @@
+CHANGELOG — 2026-04-13
+======================
+
+Feature: Bilingual EN/AR Language Toggle
+-----------------------------------------
+
+SUMMARY
+Added a full bilingual English / Arabic toggle to the Commercial Bank AI Assistant
+Flutter web prototype. Switching to Arabic mirrors the entire UI to RTL and
+replaces all visible strings with Arabic equivalents.
+
+
+NEW FILES
+---------
+lib/language_provider.dart
+  InheritedWidget that holds the isArabic boolean and a toggleLanguage callback.
+  Any widget in the tree can read the current language via
+  LanguageProvider.of(context).
+
+lib/l10n/app_strings.dart
+  AppStrings(bool isArabic) — single class with string getters for every
+  translatable UI label. Returns English or Arabic depending on the flag.
+
+
+MODIFIED FILES
+--------------
+pubspec.yaml
+  Added dependency: google_fonts ^6.2.1
+  Used to apply NotoSansArabic font across the app when Arabic is active.
+
+lib/main.dart
+  Converted CommercialBankApp from StatelessWidget to StatefulWidget.
+  Holds _isArabic state and _toggleLanguage().
+  Wraps MaterialApp with LanguageProvider.
+  Applies Directionality(rtl/ltr) via MaterialApp.builder so dialogs and
+  snackbars also respect layout direction.
+  Switches textTheme to GoogleFonts.notoSansArabicTextTheme when Arabic is on.
+
+lib/screens/chat_screen.dart
+  Added EN | AR toggle button in the app bar (top right). Active language is
+  bold/white; inactive is dimmed.
+  Removed "Safety Mode Active" green chip from the app bar.
+  All quick-action button labels, hint text, header subtitle, framework banner
+  features, and scenario messages go through AppStrings.
+  Scenario methods capture language at call time so streaming steps stay
+  consistent through async gaps.
+
+lib/widgets/message_bubble.dart
+  Replaced BorderRadius.only (physical) with BorderRadiusDirectional.only
+  (logical) so bubble tails always point toward the avatar in both LTR and RTL.
+  Added LanguageProvider import for the HumanHandoff title localisation via
+  a Builder widget.
+
+lib/widgets/confidence_indicator.dart
+  "CONFIDENCE SCORE" label and confidence description localised.
+  Border changed from Border(left:) to BorderDirectional(start:) so the accent
+  bar appears on the correct side in RTL.
+  Percentage number and progress bar wrapped in Directionality(ltr) to keep
+  them filling left-to-right regardless of locale.
+
+lib/widgets/source_attribution.dart
+  "Data Sources" heading localised.
+
+lib/widgets/human_handoff.dart
+  "Schedule Call" and "Live Chat Now" button labels localised.
+
+lib/widgets/accountability_checkpoint.dart
+  "Accountability Checkpoint" title localised.
+  Checkbox confirmation text localised.
+  Decline-reason dropdown list localised (all 6 options).
+  "Approve & Schedule" and "Decline" button labels localised.
+  Audit trail note localised (Session ID value preserved as-is).
+
+lib/widgets/tier_badge.dart
+  All three tier labels localised:
+    Tier 1: Factual Query
+    Tier 2: Interpretive Analysis
+    Tier 3: Advisory Query - Human Handoff Required
+
+lib/widgets/expandable_section.dart
+  "Show ML reasoning" toggle label localised.
+
+lib/widgets/uncertainty_bar.dart
+  "Data Certainty Breakdown" heading localised.
+  Legend labels Confirmed / Estimated / Uncertain localised.
+
+
+ARABIC TRANSLATIONS USED
+-------------------------
+"What is my current account balance?"             → ما هو رصيدي الحالي؟
+"Your current account balance is"                 → رصيدك الحالي هو
+"Confidence Score"                                → درجة الثقة
+"High Confidence - Direct database query…"        → ثقة عالية - استعلام مباشر من قاعدة البيانات
+"Data Sources"                                    → مصادر البيانات
+"Core Banking System"                             → نظام البنك الأساسي
+"Last updated"                                    → آخر تحديث
+"View Statement"                                  → عرض الكشف
+"Download PDF"                                    → تحميل PDF
+"Balance"                                         → الرصيد
+"Transactions"                                    → المعاملات
+"Loan"                                            → القرض
+"RM Tips"                                         → نصائح المستشار
+"Ask me anything..."                              → اسألني أي شيء...
+"Safety Mode Active"                              → وضع الأمان نشط
+"Hallucination Safety Framework Enabled"          → إطار أمان الهلوسة مفعّل
+"Active Safety Features"                          → ميزات الأمان النشطة
+"Confidence Scoring"                              → تقييم الثقة
+"Source Attribution"                              → نسب المصدر
+"Streaming Validation"                            → التحقق المتدفق
+"Accountability Tracking"                         → تتبع المساءلة
+"Human Handoff"                                   → التحويل البشري
+"Connect with a Specialist"                       → تواصل مع متخصص
+"Schedule Call"                                   → جدولة مكالمة
+"Live Chat Now"                                   → دردشة مباشرة الآن
+"Accountability Checkpoint"                       → نقطة تفتيش المساءلة
+"Approve & Schedule"                              → موافقة وجدولة
+"Decline"                                         → رفض
+"Data Certainty Breakdown"                        → تفاصيل يقين البيانات
+"Show ML reasoning"                               → عرض استدلال الذكاء الاصطناعي
+"Tier 1: Factual Query"                           → المستوى 1: استعلام واقعي
+"Tier 2: Interpretive Analysis"                   → المستوى 2: تحليل تفسيري
+"Tier 3: Advisory Query - Human Handoff Required" → المستوى 3: استعلام استشاري - يتطلب تدخلاً بشرياً
+"I have reviewed the customer data…"             → لقد راجعت بيانات العميل وتوصية الذكاء الاصطناعي…
+"Select reason..."                                → اختر السبب...
+"Insufficient customer data"                      → بيانات العميل غير كافية
+"Risk assessment required"                        → يلزم تقييم المخاطر
+"Manager approval needed"                         → يلزم موافقة المدير
+"Customer not eligible"                           → العميل غير مؤهل
+"Other"                                           → أخرى
+"Your decision will be logged for audit purposes" → سيتم تسجيل قرارك لأغراض التدقيق

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../models/message.dart';
 import '../widgets/message_bubble.dart';
+import '../language_provider.dart';
+import '../l10n/app_strings.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -39,25 +41,34 @@ class _ChatScreenState extends State<ChatScreen> {
     if (_isProcessing) return;
     setState(() => _isProcessing = true);
 
+    // Capture language at call time so async steps stay consistent.
+    final isArabic = LanguageProvider.of(context).isArabic;
+    final s = AppStrings(isArabic);
+
     String userMessage;
     switch (scenario) {
       case 1:
-        userMessage = 'What is my current account balance?';
+        userMessage = s.scenario1UserMessage;
         break;
       case 2:
-        userMessage = 'Analyze my spending patterns from last month';
+        userMessage = isArabic
+            ? 'تحليل أنماط إنفاقي من الشهر الماضي'
+            : 'Analyze my spending patterns from last month';
         break;
       case 3:
-        userMessage = 'Should I take out a personal loan?';
+        userMessage = isArabic
+            ? 'هل يجب أن آخذ قرضاً شخصياً؟'
+            : 'Should I take out a personal loan?';
         break;
       case 4:
-        userMessage = 'Show me customer recommendations for today';
+        userMessage = isArabic
+            ? 'أظهر لي توصيات العملاء لهذا اليوم'
+            : 'Show me customer recommendations for today';
         break;
       default:
         return;
     }
 
-    // Add user message
     setState(() {
       _messages.add(ChatMessage(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -70,41 +81,46 @@ class _ChatScreenState extends State<ChatScreen> {
 
     await Future.delayed(const Duration(milliseconds: 300));
 
-    // Process scenario
     switch (scenario) {
       case 1:
-        await _scenario1AccountBalance();
+        await _scenario1AccountBalance(s);
         break;
       case 2:
-        await _scenario2TransactionAnalysis();
+        await _scenario2TransactionAnalysis(isArabic);
         break;
       case 3:
-        await _scenario3LoanAdvice();
+        await _scenario3LoanAdvice(isArabic, s);
         break;
       case 4:
-        await _scenario4RMRecommendation();
+        await _scenario4RMRecommendation(isArabic);
         break;
     }
 
     setState(() => _isProcessing = false);
   }
 
-  Future<void> _scenario1AccountBalance() async {
+  Future<void> _scenario1AccountBalance(AppStrings s) async {
     final messageId = DateTime.now().millisecondsSinceEpoch.toString();
 
     setState(() {
       _messages.add(ChatMessage(
         id: messageId,
         type: MessageType.bot,
-        content: 'Your current account balance is **QAR 45,230.50**',
+        content: s.scenario1BotContent,
         timestamp: DateTime.now(),
         tierLevel: TierLevel.tier1,
         isStreaming: true,
-        streamingSteps: const [
-          StreamingStep(label: 'Connecting to core banking system...'),
-          StreamingStep(label: 'Authenticating user credentials...'),
-          StreamingStep(label: 'Fetching account data...'),
-        ],
+        streamingSteps: s.isArabic
+            ? const [
+                StreamingStep(label: 'جارٍ الاتصال بنظام البنك الأساسي...'),
+                StreamingStep(label: 'جارٍ مصادقة بيانات اعتماد المستخدم...'),
+                StreamingStep(label: 'جارٍ جلب بيانات الحساب...'),
+              ]
+            : const [
+                StreamingStep(label: 'Connecting to core banking system...'),
+                StreamingStep(label: 'Authenticating user credentials...'),
+                StreamingStep(label: 'Fetching account data...'),
+              ],
       ));
     });
     _scrollToBottom();
@@ -116,9 +132,7 @@ class _ChatScreenState extends State<ChatScreen> {
         if (msgIndex != -1) {
           final msg = _messages[msgIndex];
           final updatedSteps = msg.streamingSteps!.asMap().entries.map((e) {
-            if (e.key <= i) {
-              return e.value.copyWith(isComplete: true);
-            }
+            if (e.key <= i) return e.value.copyWith(isComplete: true);
             return e.value;
           }).toList();
           _messages[msgIndex] = msg.copyWith(streamingSteps: updatedSteps);
@@ -134,18 +148,18 @@ class _ChatScreenState extends State<ChatScreen> {
         _messages[msgIndex] = ChatMessage(
           id: messageId,
           type: MessageType.bot,
-          content: 'Your current account balance is QAR 45,230.50',
+          content: s.scenario1BotContent,
           timestamp: DateTime.now(),
           tierLevel: TierLevel.tier1,
           confidencePercent: 99,
-          sources: const [
+          sources: [
             SourceInfo(
-              name: 'Core Banking System',
-              metadata: 'Last updated: 2 minutes ago',
+              name: s.coreBankingSystem,
+              metadata: s.lastUpdated2MinAgo,
               url: '#',
             ),
           ],
-          actionButtons: const ['View Statement', 'Download PDF'],
+          actionButtons: [s.viewStatement, s.downloadPDF],
           isStreaming: false,
         );
       }
@@ -153,7 +167,7 @@ class _ChatScreenState extends State<ChatScreen> {
     _scrollToBottom();
   }
 
-  Future<void> _scenario2TransactionAnalysis() async {
+  Future<void> _scenario2TransactionAnalysis(bool isArabic) async {
     final messageId = DateTime.now().millisecondsSinceEpoch.toString();
 
     setState(() {
@@ -164,12 +178,19 @@ class _ChatScreenState extends State<ChatScreen> {
         timestamp: DateTime.now(),
         tierLevel: TierLevel.tier2,
         isStreaming: true,
-        streamingSteps: const [
-          StreamingStep(label: 'Analyzing transaction history...'),
-          StreamingStep(label: 'Categorizing expenditures...'),
-          StreamingStep(label: 'Cross-referencing patterns...'),
-          StreamingStep(label: 'Calculating confidence intervals...'),
-        ],
+        streamingSteps: isArabic
+            ? const [
+                StreamingStep(label: 'جارٍ تحليل سجل المعاملات...'),
+                StreamingStep(label: 'جارٍ تصنيف النفقات...'),
+                StreamingStep(label: 'جارٍ مقارنة الأنماط...'),
+                StreamingStep(label: 'جارٍ حساب فترات الثقة...'),
+              ]
+            : const [
+                StreamingStep(label: 'Analyzing transaction history...'),
+                StreamingStep(label: 'Categorizing expenditures...'),
+                StreamingStep(label: 'Cross-referencing patterns...'),
+                StreamingStep(label: 'Calculating confidence intervals...'),
+              ],
       ));
     });
     _scrollToBottom();
@@ -181,9 +202,7 @@ class _ChatScreenState extends State<ChatScreen> {
         if (msgIndex != -1) {
           final msg = _messages[msgIndex];
           final updatedSteps = msg.streamingSteps!.asMap().entries.map((e) {
-            if (e.key <= i) {
-              return e.value.copyWith(isComplete: true);
-            }
+            if (e.key <= i) return e.value.copyWith(isComplete: true);
             return e.value;
           }).toList();
           _messages[msgIndex] = msg.copyWith(streamingSteps: updatedSteps);
@@ -199,40 +218,69 @@ class _ChatScreenState extends State<ChatScreen> {
         _messages[msgIndex] = ChatMessage(
           id: messageId,
           type: MessageType.bot,
-          content:
-              'Your estimated total spending for January 2026 is approximately QAR 45,230',
+          content: isArabic
+              ? 'إجمالي إنفاقك المقدّر لشهر يناير 2026 هو تقريباً QAR 45,230'
+              : 'Your estimated total spending for January 2026 is approximately QAR 45,230',
           timestamp: DateTime.now(),
           tierLevel: TierLevel.tier2,
           confidencePercent: 73,
-          warningMessage: 'Data Quality Alert: Possible error range ± QAR 2,000',
+          warningMessage: isArabic
+              ? 'تنبيه جودة البيانات: نطاق خطأ محتمل ± QAR 2,000'
+              : 'Data Quality Alert: Possible error range ± QAR 2,000',
           uncertaintyData: const UncertaintyData(
             confirmedAmount: 38445,
             estimatedAmount: 4285,
             uncertainAmount: 2500,
           ),
-          sources: const [
-            SourceInfo(
-              name: 'Transaction Database',
-              metadata: '28 days complete, 3 days partial',
-              url: '#',
-            ),
-            SourceInfo(
-              name: 'Card Processing System',
-              metadata: 'Last synced: 3 days ago',
-              url: '#',
-            ),
-            SourceInfo(
-              name: 'ATM Network',
-              metadata: 'Real-time',
-            ),
-          ],
-          mlReasoning: const MLReasoning(points: [
-            '28 days have complete transaction records',
-            '⚠ Jan 15-17: Partial data (system maintenance)',
-            '⚠ 2 offline ATM transactions not yet synced',
-            'Cross-referenced with bank statement totals',
-          ]),
-          actionButtons: const ['View Raw Data', 'Export Details', 'Report Issue'],
+          sources: isArabic
+              ? const [
+                  SourceInfo(
+                    name: 'قاعدة بيانات المعاملات',
+                    metadata: '28 يوماً مكتملاً، 3 أيام جزئية',
+                    url: '#',
+                  ),
+                  SourceInfo(
+                    name: 'نظام معالجة البطاقات',
+                    metadata: 'آخر مزامنة: منذ 3 أيام',
+                    url: '#',
+                  ),
+                  SourceInfo(
+                    name: 'شبكة الصراف الآلي',
+                    metadata: 'في الوقت الفعلي',
+                  ),
+                ]
+              : const [
+                  SourceInfo(
+                    name: 'Transaction Database',
+                    metadata: '28 days complete, 3 days partial',
+                    url: '#',
+                  ),
+                  SourceInfo(
+                    name: 'Card Processing System',
+                    metadata: 'Last synced: 3 days ago',
+                    url: '#',
+                  ),
+                  SourceInfo(
+                    name: 'ATM Network',
+                    metadata: 'Real-time',
+                  ),
+                ],
+          mlReasoning: MLReasoning(points: isArabic
+              ? const [
+                  'سجلات المعاملات كاملة لـ 28 يوماً',
+                  '⚠ 15-17 يناير: بيانات جزئية (صيانة النظام)',
+                  '⚠ معاملتان غير متصلتين عبر الصراف الآلي لم تتم مزامنتهما بعد',
+                  'تمت المقارنة مع إجماليات كشف الحساب البنكي',
+                ]
+              : const [
+                  '28 days have complete transaction records',
+                  '⚠ Jan 15-17: Partial data (system maintenance)',
+                  '⚠ 2 offline ATM transactions not yet synced',
+                  'Cross-referenced with bank statement totals',
+                ]),
+          actionButtons: isArabic
+              ? const ['عرض البيانات الخام', 'تصدير التفاصيل', 'الإبلاغ عن مشكلة']
+              : const ['View Raw Data', 'Export Details', 'Report Issue'],
           isStreaming: false,
         );
       }
@@ -240,7 +288,7 @@ class _ChatScreenState extends State<ChatScreen> {
     _scrollToBottom();
   }
 
-  Future<void> _scenario3LoanAdvice() async {
+  Future<void> _scenario3LoanAdvice(bool isArabic, AppStrings s) async {
     final messageId = DateTime.now().millisecondsSinceEpoch.toString();
 
     setState(() {
@@ -251,10 +299,15 @@ class _ChatScreenState extends State<ChatScreen> {
         timestamp: DateTime.now(),
         tierLevel: TierLevel.tier3,
         isStreaming: true,
-        streamingSteps: const [
-          StreamingStep(label: 'Processing request...'),
-          StreamingStep(label: 'Analyzing query type...'),
-        ],
+        streamingSteps: isArabic
+            ? const [
+                StreamingStep(label: 'جارٍ معالجة الطلب...'),
+                StreamingStep(label: 'جارٍ تحليل نوع الاستعلام...'),
+              ]
+            : const [
+                StreamingStep(label: 'Processing request...'),
+                StreamingStep(label: 'Analyzing query type...'),
+              ],
       ));
     });
     _scrollToBottom();
@@ -266,9 +319,7 @@ class _ChatScreenState extends State<ChatScreen> {
         if (msgIndex != -1) {
           final msg = _messages[msgIndex];
           final updatedSteps = msg.streamingSteps!.asMap().entries.map((e) {
-            if (e.key <= i) {
-              return e.value.copyWith(isComplete: true);
-            }
+            if (e.key <= i) return e.value.copyWith(isComplete: true);
             return e.value;
           }).toList();
           _messages[msgIndex] = msg.copyWith(streamingSteps: updatedSteps);
@@ -284,12 +335,15 @@ class _ChatScreenState extends State<ChatScreen> {
         _messages[msgIndex] = ChatMessage(
           id: messageId,
           type: MessageType.bot,
-          content:
-              'Loan recommendations require personalized financial advice from a licensed advisor. I cannot provide this guidance, but I can connect you with the right specialist.',
+          content: isArabic
+              ? 'توصيات القروض تتطلب مشورة مالية مخصصة من مستشار مرخص. لا أستطيع تقديم هذه التوجيهات، لكن يمكنني التواصل مع المختص المناسب.'
+              : 'Loan recommendations require personalized financial advice from a licensed advisor. I cannot provide this guidance, but I can connect you with the right specialist.',
           timestamp: DateTime.now(),
           tierLevel: TierLevel.tier3,
           showHumanHandoff: true,
-          actionButtons: const ['View Loan Products', 'Loan Calculator'],
+          actionButtons: isArabic
+              ? const ['عرض منتجات القروض', 'حاسبة القروض']
+              : const ['View Loan Products', 'Loan Calculator'],
           isStreaming: false,
         );
       }
@@ -297,7 +351,7 @@ class _ChatScreenState extends State<ChatScreen> {
     _scrollToBottom();
   }
 
-  Future<void> _scenario4RMRecommendation() async {
+  Future<void> _scenario4RMRecommendation(bool isArabic) async {
     final messageId = DateTime.now().millisecondsSinceEpoch.toString();
 
     setState(() {
@@ -307,12 +361,19 @@ class _ChatScreenState extends State<ChatScreen> {
         content: '',
         timestamp: DateTime.now(),
         isStreaming: true,
-        streamingSteps: const [
-          StreamingStep(label: 'Analyzing customer portfolio...'),
-          StreamingStep(label: 'Identifying engagement opportunities...'),
-          StreamingStep(label: 'Calculating recommendation confidence...'),
-          StreamingStep(label: 'Running validation checks...'),
-        ],
+        streamingSteps: isArabic
+            ? const [
+                StreamingStep(label: 'جارٍ تحليل محفظة العميل...'),
+                StreamingStep(label: 'جارٍ تحديد فرص التفاعل...'),
+                StreamingStep(label: 'جارٍ حساب ثقة التوصية...'),
+                StreamingStep(label: 'جارٍ إجراء فحوصات التحقق...'),
+              ]
+            : const [
+                StreamingStep(label: 'Analyzing customer portfolio...'),
+                StreamingStep(label: 'Identifying engagement opportunities...'),
+                StreamingStep(label: 'Calculating recommendation confidence...'),
+                StreamingStep(label: 'Running validation checks...'),
+              ],
       ));
     });
     _scrollToBottom();
@@ -324,9 +385,7 @@ class _ChatScreenState extends State<ChatScreen> {
         if (msgIndex != -1) {
           final msg = _messages[msgIndex];
           final updatedSteps = msg.streamingSteps!.asMap().entries.map((e) {
-            if (e.key <= i) {
-              return e.value.copyWith(isComplete: true);
-            }
+            if (e.key <= i) return e.value.copyWith(isComplete: true);
             return e.value;
           }).toList();
           _messages[msgIndex] = msg.copyWith(streamingSteps: updatedSteps);
@@ -342,10 +401,14 @@ class _ChatScreenState extends State<ChatScreen> {
         _messages[msgIndex] = ChatMessage(
           id: messageId,
           type: MessageType.bot,
-          content: 'Recommended Action: Contact Ahmed Al-Mansouri today',
+          content: isArabic
+              ? 'الإجراء الموصى به: تواصل مع أحمد المنصوري اليوم'
+              : 'Recommended Action: Contact Ahmed Al-Mansouri today',
           timestamp: DateTime.now(),
           tierLevel: TierLevel.tier2,
-          tierLabel: 'RM Assistant: Customer Recommendation',
+          tierLabel: isArabic
+              ? 'مساعد المستشار: توصية العميل'
+              : 'RM Assistant: Customer Recommendation',
           confidencePercent: 92,
           customerProfile: const CustomerProfile(
             name: 'Ahmed Al-Mansouri',
@@ -355,13 +418,21 @@ class _ChatScreenState extends State<ChatScreen> {
             potentialValue: '+15% (recent)',
             riskScore: 'Low',
           ),
-          mlReasoning: const MLReasoning(points: [
-            'Salary increase detected: +15% (verified from employer)',
-            'Life stage indicator: Recently married (profile updated)',
-            'Savings pattern: Increased by 40% last 3 months',
-            'Similar customer patterns: 87% converted to mortgage within 6 months',
-            'Engagement window: Last contact 3 months ago (optimal timing)',
-          ]),
+          mlReasoning: MLReasoning(points: isArabic
+              ? const [
+                  'تم اكتشاف زيادة في الراتب: +15% (موثّقة من صاحب العمل)',
+                  'مؤشر المرحلة الحياتية: متزوج حديثاً (تم تحديث الملف)',
+                  'نمط الادخار: زيادة بنسبة 40% خلال آخر 3 أشهر',
+                  'أنماط عملاء مماثلة: 87% تحولوا إلى رهن عقاري خلال 6 أشهر',
+                  'نافذة التفاعل: آخر تواصل منذ 3 أشهر (التوقيت مثالي)',
+                ]
+              : const [
+                  'Salary increase detected: +15% (verified from employer)',
+                  'Life stage indicator: Recently married (profile updated)',
+                  'Savings pattern: Increased by 40% last 3 months',
+                  'Similar customer patterns: 87% converted to mortgage within 6 months',
+                  'Engagement window: Last contact 3 months ago (optimal timing)',
+                ]),
           showAccountabilityCheckpoint: true,
           isStreaming: false,
         );
@@ -384,13 +455,15 @@ class _ChatScreenState extends State<ChatScreen> {
     _textController.clear();
     _scrollToBottom();
 
+    final isArabic = LanguageProvider.of(context).isArabic;
     Future.delayed(const Duration(milliseconds: 500), () {
       setState(() {
         _messages.add(ChatMessage(
           id: DateTime.now().millisecondsSinceEpoch.toString(),
           type: MessageType.bot,
-          content:
-              'Thank you for your message. Please use the quick action buttons below to explore the demo scenarios with full hallucination safety features.',
+          content: isArabic
+              ? 'شكراً لرسالتك. يرجى استخدام أزرار الإجراءات السريعة أدناه لاستكشاف سيناريوهات العرض التوضيحي.'
+              : 'Thank you for your message. Please use the quick action buttons below to explore the demo scenarios with full hallucination safety features.',
           timestamp: DateTime.now(),
         ));
       });
@@ -400,14 +473,15 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isArabic = LanguageProvider.of(context).isArabic;
+    final s = AppStrings(isArabic);
+
     return Scaffold(
       body: Container(
-        // Full screen white background
         color: Colors.white,
         child: SafeArea(
           child: Center(
             child: Container(
-              // Chat container with max width 600px
               constraints: const BoxConstraints(maxWidth: 600),
               margin: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -425,16 +499,13 @@ class _ChatScreenState extends State<ChatScreen> {
                 borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
                 child: Column(
                   children: [
-                    // Header
-                    _buildHeader(),
-                    // Framework Banner
-                    _buildFrameworkBanner(),
-                    // Messages list
+                    _buildHeader(isArabic),
+                    _buildFrameworkBanner(s),
                     Expanded(
                       child: Container(
                         color: AppTheme.backgroundLight,
                         child: _messages.isEmpty
-                            ? _buildWelcomeMessage()
+                            ? _buildWelcomeMessage(isArabic)
                             : ListView.builder(
                                 controller: _scrollController,
                                 padding: const EdgeInsets.all(AppTheme.paddingLarge),
@@ -463,8 +534,7 @@ class _ChatScreenState extends State<ChatScreen> {
                               ),
                       ),
                     ),
-                    // Input Area
-                    _buildInputArea(),
+                    _buildInputArea(s),
                   ],
                 ),
               ),
@@ -475,15 +545,15 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(bool isArabic) {
+    final s = AppStrings(isArabic);
+    final toggle = LanguageProvider.of(context).toggleLanguage;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-      decoration: BoxDecoration(
-        gradient: AppTheme.headerGradient,
-      ),
+      decoration: BoxDecoration(gradient: AppTheme.headerGradient),
       child: Row(
         children: [
-          // Bot avatar
           Semantics(
             label: 'Security shield - Protected AI',
             child: Container(
@@ -504,12 +574,11 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
           const SizedBox(width: 15),
-          // Header text
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'Commercial Bank AI Assistant',
                   style: TextStyle(
                     fontSize: 18,
@@ -517,38 +586,56 @@ class _ChatScreenState extends State<ChatScreen> {
                     color: Colors.white,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
-                  'Hallucination Safety Framework Enabled',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.white70,
-                  ),
+                  s.hallucinationSafetyEnabled,
+                  style: const TextStyle(fontSize: 11, color: Colors.white70),
                 ),
               ],
             ),
           ),
-          // Safety badge - Green
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: AppTheme.success,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.check_circle, color: Colors.white, size: 14),
-                SizedBox(width: 6),
-                Text(
-                  'Safety Mode Active',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
+          // Language toggle
+          Semantics(
+            button: true,
+            label: isArabic ? 'Switch to English' : 'التبديل إلى العربية',
+            child: GestureDetector(
+              onTap: toggle,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.white.withOpacity(0.5)),
                 ),
-              ],
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'EN',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight:
+                            !isArabic ? FontWeight.bold : FontWeight.normal,
+                        color: !isArabic ? Colors.white : Colors.white54,
+                      ),
+                    ),
+                    const Text(
+                      ' | ',
+                      style: TextStyle(fontSize: 12, color: Colors.white38),
+                    ),
+                    Text(
+                      'AR',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight:
+                            isArabic ? FontWeight.bold : FontWeight.normal,
+                        color: isArabic ? Colors.white : Colors.white54,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ],
@@ -556,7 +643,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _buildFrameworkBanner() {
+  Widget _buildFrameworkBanner(AppStrings s) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
       decoration: const BoxDecoration(
@@ -572,9 +659,9 @@ class _ChatScreenState extends State<ChatScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            '🔬 Active Safety Features:',
-            style: TextStyle(
+          Text(
+            '🔬 ${s.activeSafetyFeatures}:',
+            style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
               color: AppTheme.infoText,
@@ -585,11 +672,11 @@ class _ChatScreenState extends State<ChatScreen> {
             spacing: 20,
             runSpacing: 5,
             children: [
-              _buildFeatureItem('Confidence Scoring'),
-              _buildFeatureItem('Source Attribution'),
-              _buildFeatureItem('Streaming Validation'),
-              _buildFeatureItem('Accountability Tracking'),
-              _buildFeatureItem('Human Handoff'),
+              _buildFeatureItem(s.confidenceScoring),
+              _buildFeatureItem(s.sourceAttribution),
+              _buildFeatureItem(s.streamingValidation),
+              _buildFeatureItem(s.accountabilityTracking),
+              _buildFeatureItem(s.humanHandoff),
             ],
           ),
         ],
@@ -605,23 +692,19 @@ class _ChatScreenState extends State<ChatScreen> {
         const SizedBox(width: 5),
         Text(
           text,
-          style: const TextStyle(
-            fontSize: 12,
-            color: AppTheme.infoText,
-          ),
+          style: const TextStyle(fontSize: 12, color: AppTheme.infoText),
         ),
       ],
     );
   }
 
-  Widget _buildWelcomeMessage() {
+  Widget _buildWelcomeMessage(bool isArabic) {
     return ListView(
       padding: const EdgeInsets.all(AppTheme.paddingLarge),
       children: [
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Bot avatar
             Container(
               width: 40,
               height: 40,
@@ -634,7 +717,6 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
             const SizedBox(width: 12),
-            // Message content
             Expanded(
               child: Container(
                 padding: const EdgeInsets.all(16),
@@ -647,14 +729,15 @@ class _ChatScreenState extends State<ChatScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
                         color: AppTheme.tier1Bg,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Text(
-                        'System Message',
-                        style: TextStyle(
+                      child: Text(
+                        isArabic ? 'رسالة النظام' : 'System Message',
+                        style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                           color: AppTheme.tier1Text,
@@ -662,18 +745,22 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    const Text(
-                      'Welcome to Commercial Bank AI Assistant',
-                      style: TextStyle(
+                    Text(
+                      isArabic
+                          ? 'مرحباً بك في مساعد البنك التجاري الذكي'
+                          : 'Welcome to Commercial Bank AI Assistant',
+                      style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                         color: AppTheme.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      "I'm designed with hallucination mitigation protocols. Every response includes: confidence scoring, source attribution, and accountability tracking.",
-                      style: TextStyle(
+                    Text(
+                      isArabic
+                          ? 'تم تصميمي مع بروتوكولات للحد من الهلوسة. كل استجابة تتضمن: تقييم الثقة، ونسب المصدر، وتتبع المساءلة.'
+                          : "I'm designed with hallucination mitigation protocols. Every response includes: confidence scoring, source attribution, and accountability tracking.",
+                      style: const TextStyle(
                         fontSize: 14,
                         color: AppTheme.textPrimary,
                         height: 1.6,
@@ -689,7 +776,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _buildInputArea() {
+  Widget _buildInputArea(AppStrings s) {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
       decoration: BoxDecoration(
@@ -707,44 +794,42 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       child: Column(
         children: [
-          // Quick actions - single row
           Row(
             children: [
               _buildActionBtn(
                 icon: Icons.account_balance_wallet_outlined,
-                label: 'Balance',
+                label: s.balance,
                 onTap: () => _runScenario(1),
               ),
               const SizedBox(width: 8),
               _buildActionBtn(
                 icon: Icons.receipt_long_outlined,
-                label: 'Transactions',
+                label: s.transactions,
                 onTap: () => _runScenario(2),
               ),
               const SizedBox(width: 8),
               _buildActionBtn(
                 icon: Icons.request_quote_outlined,
-                label: 'Loan',
+                label: s.loan,
                 onTap: () => _runScenario(3),
               ),
               const SizedBox(width: 8),
               _buildActionBtn(
                 icon: Icons.people_outline,
-                label: 'RM Tips',
+                label: s.rmTips,
                 onTap: () => _runScenario(4),
               ),
             ],
           ),
           const SizedBox(height: 12),
-          // Input field
           Row(
             children: [
               Expanded(
                 child: TextField(
                   controller: _textController,
-                  decoration: const InputDecoration(
-                    hintText: 'Ask me anything...',
-                    hintStyle: TextStyle(color: AppTheme.textSecondary),
+                  decoration: InputDecoration(
+                    hintText: s.askMeAnything,
+                    hintStyle: const TextStyle(color: AppTheme.textSecondary),
                   ),
                   onSubmitted: (_) => _sendMessage(),
                 ),
@@ -761,7 +846,8 @@ class _ChatScreenState extends State<ChatScreen> {
                     shape: BoxShape.circle,
                   ),
                   child: IconButton(
-                    icon: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
+                    icon: const Icon(Icons.send_rounded,
+                        color: Colors.white, size: 20),
                     onPressed: _sendMessage,
                     tooltip: 'Send message',
                   ),
@@ -806,11 +892,7 @@ class _ChatScreenState extends State<ChatScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    icon,
-                    size: 15,
-                    color: AppTheme.primaryBurgundy,
-                  ),
+                  Icon(icon, size: 15, color: AppTheme.primaryBurgundy),
                   const SizedBox(width: 6),
                   Text(
                     label,
@@ -829,4 +911,3 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 }
-

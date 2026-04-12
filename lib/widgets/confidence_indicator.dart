@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../models/message.dart';
+import '../language_provider.dart';
+import '../l10n/app_strings.dart';
 
 class ConfidenceIndicator extends StatefulWidget {
   final int confidencePercent;
@@ -68,31 +70,37 @@ class _ConfidenceIndicatorState extends State<ConfidenceIndicator>
     }
   }
 
-  String get _label {
+  String _label(AppStrings s) {
     switch (widget.level) {
       case ConfidenceLevel.high:
-        return '✓ High Confidence - Direct database query, real-time data';
+        return s.highConfidenceLabel;
       case ConfidenceLevel.medium:
-        return '⚠️ Medium Confidence - Some data points estimated';
+        return s.isArabic
+            ? '⚠️ ثقة متوسطة - بعض نقاط البيانات مُقدَّرة'
+            : '⚠️ Medium Confidence - Some data points estimated';
       case ConfidenceLevel.low:
-        return '⚠️ Low Confidence - Significant uncertainty detected';
+        return s.isArabic
+            ? '⚠️ ثقة منخفضة - تم اكتشاف عدم يقين كبير'
+            : '⚠️ Low Confidence - Significant uncertainty detected';
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final s = AppStrings(LanguageProvider.of(context).isArabic);
+    final label = _label(s);
+
     return Semantics(
-      label: 'Confidence score ${widget.confidencePercent} percent. ${_label}',
+      label: 'Confidence score ${widget.confidencePercent} percent. $label',
       child: Container(
         padding: const EdgeInsets.all(AppTheme.paddingSmall),
         decoration: BoxDecoration(
           color: _backgroundColor,
           borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
-          border: Border(
-            left: BorderSide(
-              color: _accentColor,
-              width: 4,
-            ),
+          // Use BorderDirectional so the accent bar appears on the
+          // "start" side (left in LTR, right in RTL) automatically.
+          border: BorderDirectional(
+            start: BorderSide(color: _accentColor, width: 4),
           ),
         ),
         child: Column(
@@ -103,7 +111,7 @@ class _ConfidenceIndicatorState extends State<ConfidenceIndicator>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'CONFIDENCE SCORE',
+                  s.confidenceScore.toUpperCase(),
                   style: TextStyle(
                     fontSize: AppTheme.fontSizeXSmall,
                     fontWeight: FontWeight.w600,
@@ -113,16 +121,18 @@ class _ConfidenceIndicatorState extends State<ConfidenceIndicator>
                 ),
                 Row(
                   children: [
-                    // Traffic light indicator
                     _TrafficLight(level: widget.level),
                     const SizedBox(width: 8),
-                    // Percentage display
-                    Text(
-                      '${widget.confidencePercent}%',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: _textColor,
+                    // Keep the percentage number LTR in both layouts.
+                    Directionality(
+                      textDirection: TextDirection.ltr,
+                      child: Text(
+                        '${widget.confidencePercent}%',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: _textColor,
+                        ),
                       ),
                     ),
                   ],
@@ -130,34 +140,36 @@ class _ConfidenceIndicatorState extends State<ConfidenceIndicator>
               ],
             ),
             const SizedBox(height: 10),
-            // Progress bar
-            ClipRRect(
-              borderRadius: BorderRadius.circular(3),
-              child: AnimatedBuilder(
-                animation: _animation,
-                builder: (context, child) {
-                  return SizedBox(
-                    height: 6,
-                    child: Stack(
-                      children: [
-                        Container(
-                          width: double.infinity,
-                          color: const Color(0xFFe9ecef),
-                        ),
-                        FractionallySizedBox(
-                          widthFactor: _animation.value,
-                          child: Container(color: _accentColor),
-                        ),
-                      ],
-                    ),
-                  );
-                },
+            // Progress bar – always fills left-to-right regardless of locale.
+            Directionality(
+              textDirection: TextDirection.ltr,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(3),
+                child: AnimatedBuilder(
+                  animation: _animation,
+                  builder: (context, child) {
+                    return SizedBox(
+                      height: 6,
+                      child: Stack(
+                        children: [
+                          Container(
+                            width: double.infinity,
+                            color: const Color(0xFFe9ecef),
+                          ),
+                          FractionallySizedBox(
+                            widthFactor: _animation.value,
+                            child: Container(color: _accentColor),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
             const SizedBox(height: 8),
-            // Contextual text
             Text(
-              _label,
+              label,
               style: TextStyle(
                 fontSize: AppTheme.fontSizeXSmall,
                 color: _textColor.withOpacity(0.9),

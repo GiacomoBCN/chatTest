@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../models/message.dart';
+import '../language_provider.dart';
+import '../l10n/app_strings.dart';
 
 class SourceAttribution extends StatelessWidget {
   final List<SourceInfo> sources;
@@ -12,6 +14,7 @@ class SourceAttribution extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = AppStrings(LanguageProvider.of(context).isArabic);
     return Container(
       padding: const EdgeInsets.all(AppTheme.paddingMedium),
       decoration: BoxDecoration(
@@ -21,16 +24,13 @@ class SourceAttribution extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
+              const Text('📄', style: TextStyle(fontSize: 16)),
+              const SizedBox(width: 8),
               Text(
-                '📄',
-                style: TextStyle(fontSize: 16),
-              ),
-              SizedBox(width: 8),
-              Text(
-                'Data Sources',
-                style: TextStyle(
+                s.dataSources,
+                style: const TextStyle(
                   fontSize: AppTheme.fontSizeBody,
                   fontWeight: FontWeight.bold,
                   color: AppTheme.textPrimary,

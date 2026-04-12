@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../language_provider.dart';
+import '../l10n/app_strings.dart';
 
 class AccountabilityCheckpoint extends StatefulWidget {
   final VoidCallback? onApprove;
@@ -20,17 +22,26 @@ class _AccountabilityCheckpointState extends State<AccountabilityCheckpoint> {
   bool _isChecked = false;
   String? _selectedDeclineReason;
 
-  final List<String> _declineReasons = [
-    'Select reason...',
-    'Insufficient customer data',
-    'Risk assessment required',
-    'Manager approval needed',
-    'Customer not eligible',
-    'Other',
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final s = AppStrings(LanguageProvider.of(context).isArabic);
+    final declineReasons = s.isArabic
+        ? [
+            'اختر السبب...',
+            'بيانات العميل غير كافية',
+            'يلزم تقييم المخاطر',
+            'يلزم موافقة المدير',
+            'العميل غير مؤهل',
+            'أخرى',
+          ]
+        : [
+            'Select reason...',
+            'Insufficient customer data',
+            'Risk assessment required',
+            'Manager approval needed',
+            'Customer not eligible',
+            'Other',
+          ];
     return Container(
       padding: const EdgeInsets.all(AppTheme.paddingMedium),
       decoration: BoxDecoration(
@@ -41,17 +52,13 @@ class _AccountabilityCheckpointState extends State<AccountabilityCheckpoint> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
-          const Row(
+          Row(
             children: [
+              const Text('⚖️', style: TextStyle(fontSize: 20)),
+              const SizedBox(width: 8),
               Text(
-                '⚖️',
-                style: TextStyle(fontSize: 20),
-              ),
-              SizedBox(width: 8),
-              Text(
-                'Accountability Checkpoint',
-                style: TextStyle(
+                s.accountabilityCheckpoint,
+                style: const TextStyle(
                   fontSize: AppTheme.fontSizeTitle,
                   fontWeight: FontWeight.bold,
                   color: AppTheme.textPrimary,
@@ -84,10 +91,12 @@ class _AccountabilityCheckpointState extends State<AccountabilityCheckpoint> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                const Expanded(
+                Expanded(
                   child: Text(
-                    'I have reviewed the customer data and ML recommendation. I confirm this action aligns with bank policies and customer best interests.',
-                    style: TextStyle(
+                    s.isArabic
+                        ? 'لقد راجعت بيانات العميل وتوصية الذكاء الاصطناعي. أؤكد أن هذا الإجراء يتوافق مع سياسات البنك ومصالح العميل.'
+                        : 'I have reviewed the customer data and ML recommendation. I confirm this action aligns with bank policies and customer best interests.',
+                    style: const TextStyle(
                       fontSize: AppTheme.fontSizeBody,
                       color: AppTheme.textPrimary,
                       height: 1.4,
@@ -108,17 +117,17 @@ class _AccountabilityCheckpointState extends State<AccountabilityCheckpoint> {
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
-                value: _selectedDeclineReason ?? _declineReasons[0],
+                value: _selectedDeclineReason ?? declineReasons[0],
                 isExpanded: true,
                 icon: const Icon(Icons.keyboard_arrow_down),
-                items: _declineReasons.map((reason) {
+                items: declineReasons.map((reason) {
                   return DropdownMenuItem<String>(
                     value: reason,
                     child: Text(
                       reason,
                       style: TextStyle(
                         fontSize: AppTheme.fontSizeBody,
-                        color: reason == _declineReasons[0]
+                        color: reason == declineReasons[0]
                             ? AppTheme.textSecondary
                             : AppTheme.textPrimary,
                       ),
@@ -146,12 +155,12 @@ class _AccountabilityCheckpointState extends State<AccountabilityCheckpoint> {
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.check, size: 18),
-                      SizedBox(width: 8),
-                      Text('Approve & Schedule'),
+                      const Icon(Icons.check, size: 18),
+                      const SizedBox(width: 8),
+                      Text(s.approveAndSchedule),
                     ],
                   ),
                 ),
@@ -165,12 +174,12 @@ class _AccountabilityCheckpointState extends State<AccountabilityCheckpoint> {
                     side: const BorderSide(color: AppTheme.danger),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.close, size: 18),
-                      SizedBox(width: 8),
-                      Text('Decline'),
+                      const Icon(Icons.close, size: 18),
+                      const SizedBox(width: 8),
+                      Text(s.decline),
                     ],
                   ),
                 ),
@@ -193,10 +202,10 @@ class _AccountabilityCheckpointState extends State<AccountabilityCheckpoint> {
                   color: AppTheme.textSecondary,
                 ),
                 const SizedBox(width: 6),
-                const Expanded(
+                Expanded(
                   child: Text(
-                    'Your decision will be logged for audit purposes. Session ID: CBQ-2026-0208-4521',
-                    style: TextStyle(
+                    '${s.isArabic ? 'سيتم تسجيل قرارك لأغراض التدقيق. رقم الجلسة:' : 'Your decision will be logged for audit purposes. Session ID:'} CBQ-2026-0208-4521',
+                    style: const TextStyle(
                       fontSize: 11,
                       color: AppTheme.textSecondary,
                     ),

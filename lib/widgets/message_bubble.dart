@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../models/message.dart';
+import '../language_provider.dart';
+import '../l10n/app_strings.dart';
 import 'confidence_indicator.dart';
 import 'source_attribution.dart';
 import 'uncertainty_bar.dart';
@@ -125,11 +127,15 @@ class _MessageBubbleState extends State<MessageBubble>
       padding: const EdgeInsets.all(AppTheme.paddingMedium),
       decoration: BoxDecoration(
         color: isUser ? AppTheme.primaryBurgundy : Colors.white,
-        borderRadius: BorderRadius.only(
-          topLeft: const Radius.circular(AppTheme.borderRadiusLarge),
-          topRight: const Radius.circular(AppTheme.borderRadiusLarge),
-          bottomLeft: Radius.circular(isUser ? AppTheme.borderRadiusLarge : 4),
-          bottomRight: Radius.circular(isUser ? 4 : AppTheme.borderRadiusLarge),
+        // BorderRadiusDirectional flips start/end automatically in RTL so the
+        // "tail" always points towards the avatar regardless of layout direction.
+        borderRadius: BorderRadiusDirectional.only(
+          topStart: const Radius.circular(AppTheme.borderRadiusLarge),
+          topEnd: const Radius.circular(AppTheme.borderRadiusLarge),
+          bottomStart:
+              Radius.circular(isUser ? AppTheme.borderRadiusLarge : 4),
+          bottomEnd:
+              Radius.circular(isUser ? 4 : AppTheme.borderRadiusLarge),
         ),
         boxShadow: AppTheme.cardShadow,
       ),
@@ -231,15 +237,20 @@ class _MessageBubbleState extends State<MessageBubble>
           // Human handoff
           if (widget.message.showHumanHandoff) ...[
             const SizedBox(height: 12),
-            HumanHandoff(
-              title: 'Connect with a Specialist',
-              message:
-                  'Your inquiry requires personalized guidance from our lending experts.',
-              explanation:
-                  'Loan recommendations involve complex factors including your financial situation, goals, and risk tolerance. Our specialists can provide tailored advice that AI cannot.',
-              onScheduleCall: () {},
-              onLiveChat: () {},
-            ),
+            Builder(builder: (context) {
+              final s = AppStrings(LanguageProvider.of(context).isArabic);
+              return HumanHandoff(
+                title: s.connectWithSpecialist,
+                message: s.isArabic
+                    ? 'استفسارك يتطلب توجيهاً مخصصاً من خبراء الإقراض لدينا.'
+                    : 'Your inquiry requires personalized guidance from our lending experts.',
+                explanation: s.isArabic
+                    ? 'توصيات القروض تتضمن عوامل معقدة تشمل وضعك المالي وأهدافك وتحملك للمخاطر.'
+                    : 'Loan recommendations involve complex factors including your financial situation, goals, and risk tolerance. Our specialists can provide tailored advice that AI cannot.',
+                onScheduleCall: () {},
+                onLiveChat: () {},
+              );
+            }),
           ],
           // Accountability checkpoint
           if (widget.message.showAccountabilityCheckpoint) ...[

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../models/message.dart';
+import '../language_provider.dart';
 
 class ExpandableSection extends StatefulWidget {
   final String title;
@@ -62,6 +63,10 @@ class _ExpandableSectionState extends State<ExpandableSection>
 
   @override
   Widget build(BuildContext context) {
+    final isArabic = LanguageProvider.of(context).isArabic;
+    final displayTitle = (widget.title == 'Show ML reasoning' && isArabic)
+        ? 'عرض استدلال الذكاء الاصطناعي'
+        : widget.title;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -84,7 +89,7 @@ class _ExpandableSectionState extends State<ExpandableSection>
                 ),
                 const SizedBox(width: 6),
                 Text(
-                  widget.title,
+                  displayTitle,
                   style: const TextStyle(
                     fontSize: AppTheme.fontSizeSmall,
                     fontWeight: FontWeight.w500,

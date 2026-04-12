@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../language_provider.dart';
+import '../l10n/app_strings.dart';
 
 class HumanHandoff extends StatelessWidget {
   final String title;
@@ -19,6 +21,7 @@ class HumanHandoff extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = AppStrings(LanguageProvider.of(context).isArabic);
     return Container(
       decoration: BoxDecoration(
         gradient: const LinearGradient(
@@ -35,13 +38,8 @@ class HumanHandoff extends StatelessWidget {
         padding: const EdgeInsets.all(15),
         child: Column(
           children: [
-            // Icon
-            const Text(
-              '👨‍💼',
-              style: TextStyle(fontSize: 36),
-            ),
+            const Text('👨‍💼', style: TextStyle(fontSize: 36)),
             const SizedBox(height: 10),
-            // Title
             Text(
               title,
               style: const TextStyle(
@@ -52,7 +50,6 @@ class HumanHandoff extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
-            // Message
             Text(
               message,
               style: const TextStyle(
@@ -62,7 +59,6 @@ class HumanHandoff extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
-            // Action buttons
             Row(
               children: [
                 Expanded(
@@ -78,9 +74,9 @@ class HumanHandoff extends StatelessWidget {
                       ),
                     ),
                     icon: const Text('📞', style: TextStyle(fontSize: 14)),
-                    label: const Text(
-                      'Schedule Call',
-                      style: TextStyle(fontWeight: FontWeight.w600),
+                    label: Text(
+                      s.scheduleCall,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),
@@ -98,9 +94,9 @@ class HumanHandoff extends StatelessWidget {
                       ),
                     ),
                     icon: const Text('💬', style: TextStyle(fontSize: 14)),
-                    label: const Text(
-                      'Live Chat Now',
-                      style: TextStyle(fontWeight: FontWeight.w600),
+                    label: Text(
+                      s.liveChatNow,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),
