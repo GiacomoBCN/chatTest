@@ -65,16 +65,20 @@ class _SourceItem extends StatelessWidget {
                   onTap: source.url != null ? () {} : null,
                   child: Row(
                     children: [
-                      Text(
-                        source.name,
-                        style: TextStyle(
-                          fontSize: AppTheme.fontSizeBody,
-                          color: source.url != null
-                              ? Colors.blue[700]
-                              : AppTheme.textPrimary,
-                          decoration: source.url != null
-                              ? TextDecoration.underline
-                              : TextDecoration.none,
+                      Flexible(
+                        child: Text(
+                          source.name,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: TextStyle(
+                            fontSize: AppTheme.fontSizeBody,
+                            color: source.url != null
+                                ? Colors.blue[700]
+                                : AppTheme.textPrimary,
+                            decoration: source.url != null
+                                ? TextDecoration.underline
+                                : TextDecoration.none,
+                          ),
                         ),
                       ),
                       if (source.url != null) ...[

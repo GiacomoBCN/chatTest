@@ -108,22 +108,26 @@ class _ConfidenceIndicatorState extends State<ConfidenceIndicator>
           children: [
             // Header row
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  s.confidenceScore.toUpperCase(),
-                  style: TextStyle(
-                    fontSize: AppTheme.fontSizeXSmall,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.5,
-                    color: _textColor,
+                Flexible(
+                  child: Text(
+                    s.confidenceScore.toUpperCase(),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    style: TextStyle(
+                      fontSize: AppTheme.fontSizeXSmall,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.5,
+                      color: _textColor,
+                    ),
                   ),
                 ),
+                const SizedBox(width: 8),
                 Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     _TrafficLight(level: widget.level),
                     const SizedBox(width: 8),
-                    // Keep the percentage number LTR in both layouts.
                     Directionality(
                       textDirection: TextDirection.ltr,
                       child: Text(

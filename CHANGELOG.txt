@@ -1,6 +1,38 @@
 CHANGELOG — 2026-04-13
 ======================
 
+Fix: Responsive layout & overflow fixes
+-----------------------------------------
+
+SUMMARY
+Fixed overflow issues on narrow screens in the action buttons row,
+confidence indicator, and source attribution widget. The four quick-action
+buttons now adapt to screen width using LayoutBuilder + Wrap: on screens
+narrower than 360 px they form a 2×2 grid; on wider screens they stay in a
+single row. Text overflow guards added throughout.
+
+MODIFIED FILES
+--------------
+lib/screens/chat_screen.dart
+  Replaced the fixed Row(Expanded×4) button layout with LayoutBuilder + Wrap.
+  Each button receives an explicit width calculated from the available
+  constraints (narrow: (w-8)/2, wide: (w-24)/4).
+  _buildActionBtn now accepts a required `width` parameter instead of using
+  Expanded. Button label wrapped in Flexible + TextOverflow.ellipsis.
+  Button height increased from 36 to 40 px.
+
+lib/widgets/confidence_indicator.dart
+  Header row: replaced mainAxisAlignment: spaceBetween with Flexible on the
+  label text and mainAxisSize: min on the trailing percentage row, preventing
+  overflow when the label is long (e.g. in Arabic).
+  Added overflow: TextOverflow.ellipsis on the label text.
+
+lib/widgets/source_attribution.dart
+  Source name text wrapped in Flexible + overflow: TextOverflow.ellipsis so
+  long source names no longer overflow their container.
+
+------------------------------------------------------------------------------
+
 Feature: Bilingual EN/AR Language Toggle
 -----------------------------------------
 

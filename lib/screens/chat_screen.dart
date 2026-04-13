@@ -794,33 +794,43 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       child: Column(
         children: [
-          Row(
-            children: [
-              _buildActionBtn(
-                icon: Icons.account_balance_wallet_outlined,
-                label: s.balance,
-                onTap: () => _runScenario(1),
-              ),
-              const SizedBox(width: 8),
-              _buildActionBtn(
-                icon: Icons.receipt_long_outlined,
-                label: s.transactions,
-                onTap: () => _runScenario(2),
-              ),
-              const SizedBox(width: 8),
-              _buildActionBtn(
-                icon: Icons.request_quote_outlined,
-                label: s.loan,
-                onTap: () => _runScenario(3),
-              ),
-              const SizedBox(width: 8),
-              _buildActionBtn(
-                icon: Icons.people_outline,
-                label: s.rmTips,
-                onTap: () => _runScenario(4),
-              ),
-            ],
-          ),
+          // On narrow screens (<360 px) the buttons form a 2×2 grid;
+          // on wider screens they stay in a single row.
+          LayoutBuilder(builder: (context, constraints) {
+            final w = constraints.maxWidth;
+            final isNarrow = w < 360;
+            final btnW = isNarrow ? (w - 8) / 2 : (w - 24) / 4;
+            return Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _buildActionBtn(
+                  icon: Icons.account_balance_wallet_outlined,
+                  label: s.balance,
+                  onTap: () => _runScenario(1),
+                  width: btnW,
+                ),
+                _buildActionBtn(
+                  icon: Icons.receipt_long_outlined,
+                  label: s.transactions,
+                  onTap: () => _runScenario(2),
+                  width: btnW,
+                ),
+                _buildActionBtn(
+                  icon: Icons.request_quote_outlined,
+                  label: s.loan,
+                  onTap: () => _runScenario(3),
+                  width: btnW,
+                ),
+                _buildActionBtn(
+                  icon: Icons.people_outline,
+                  label: s.rmTips,
+                  onTap: () => _runScenario(4),
+                  width: btnW,
+                ),
+              ],
+            );
+          }),
           const SizedBox(height: 12),
           Row(
             children: [
@@ -864,8 +874,10 @@ class _ChatScreenState extends State<ChatScreen> {
     required IconData icon,
     required String label,
     required VoidCallback onTap,
+    required double width,
   }) {
-    return Expanded(
+    return SizedBox(
+      width: width,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -874,7 +886,7 @@ class _ChatScreenState extends State<ChatScreen> {
           child: Opacity(
             opacity: _isProcessing ? 0.5 : 1.0,
             child: Container(
-              height: 36,
+              height: 40,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10),
@@ -893,13 +905,17 @@ class _ChatScreenState extends State<ChatScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(icon, size: 15, color: AppTheme.primaryBurgundy),
-                  const SizedBox(width: 6),
-                  Text(
-                    label,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.textPrimary,
+                  const SizedBox(width: 5),
+                  Flexible(
+                    child: Text(
+                      label,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.textPrimary,
+                      ),
                     ),
                   ),
                 ],
