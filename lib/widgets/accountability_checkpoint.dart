@@ -56,12 +56,14 @@ class _AccountabilityCheckpointState extends State<AccountabilityCheckpoint> {
             children: [
               const Text('⚖️', style: TextStyle(fontSize: 20)),
               const SizedBox(width: 8),
-              Text(
-                s.accountabilityCheckpoint,
-                style: const TextStyle(
-                  fontSize: AppTheme.fontSizeTitle,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
+              Expanded(
+                child: Text(
+                  s.accountabilityCheckpoint,
+                  style: const TextStyle(
+                    fontSize: AppTheme.fontSizeTitle,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textPrimary,
+                  ),
                 ),
               ),
             ],
@@ -159,8 +161,14 @@ class _AccountabilityCheckpointState extends State<AccountabilityCheckpoint> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Icon(Icons.check, size: 18),
-                      const SizedBox(width: 8),
-                      Text(s.approveAndSchedule),
+                      const SizedBox(width: 6),
+                      Flexible(
+                        child: Text(
+                          s.approveAndSchedule,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -178,8 +186,14 @@ class _AccountabilityCheckpointState extends State<AccountabilityCheckpoint> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Icon(Icons.close, size: 18),
-                      const SizedBox(width: 8),
-                      Text(s.decline),
+                      const SizedBox(width: 6),
+                      Flexible(
+                        child: Text(
+                          s.decline,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ),
                     ],
                   ),
                 ),

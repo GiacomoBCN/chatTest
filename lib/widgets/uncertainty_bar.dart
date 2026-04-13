@@ -77,7 +77,7 @@ class UncertaintyBar extends StatelessWidget {
                 percent: '${data.confirmedPercent.round()}%',
                 pattern: _LegendPattern.solid,
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 8),
               _LegendItem(
                 color: AppTheme.confidenceMedium,
                 label: isArabic ? 'مقدّر' : 'Estimated',
@@ -85,7 +85,7 @@ class UncertaintyBar extends StatelessWidget {
                 percent: '${data.estimatedPercent.round()}%',
                 pattern: _LegendPattern.striped,
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 8),
               _LegendItem(
                 color: AppTheme.confidenceLow,
                 label: isArabic ? 'غير محدد' : 'Uncertain',
@@ -127,29 +127,35 @@ class _LegendItem extends StatelessWidget {
           Row(
             children: [
               Container(
-                width: 16,
-                height: 16,
+                width: 12,
+                height: 12,
                 decoration: BoxDecoration(
                   color: color,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
               const SizedBox(width: 4),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: AppTheme.fontSizeSmall,
-                  color: color,
-                  fontWeight: FontWeight.w600,
+              Flexible(
+                child: Text(
+                  '$label $percent',
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: TextStyle(
+                    fontSize: AppTheme.fontSizeXSmall,
+                    color: color,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           Text(
-            '$amount ($percent)',
+            amount,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
             style: const TextStyle(
-              fontSize: AppTheme.fontSizeSmall,
+              fontSize: AppTheme.fontSizeXSmall,
               color: AppTheme.textSecondary,
             ),
           ),
