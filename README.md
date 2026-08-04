@@ -65,9 +65,6 @@ This prototype explores:
 
 *Switch language using EN/AR toggle in header.*
 
-## Live Demo
-
-[View Demo](https://giacomobcn.github.io/chatTest/)
 
 ## Getting Started
 
