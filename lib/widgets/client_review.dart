@@ -205,7 +205,10 @@ class _ClientReviewState extends State<ClientReview> {
                           style: TextStyle(fontSize: TypeRole.label, color: c.text)),
                     ),
                 ],
-                onChanged: (v) => setState(() => _reason = v),
+                onChanged: (v) {
+                  setState(() => _reason = v);
+                  FocusManager.instance.primaryFocus?.unfocus();
+                },
               ),
             ),
           ),

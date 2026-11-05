@@ -12,7 +12,7 @@ class S {
 
   // Brand
   String get bank => _t('Falak', 'فلك');
-  String get assistant => _t('AI assistant', 'مساعد ذكاء اصطناعي');
+  String get assistant => _t('AI assistant', 'مساعد ذكي');
   String get bankTagline =>
       _t('Fictional bank · AI assistant concept', 'بنك خيالي · مفهوم لمساعد ذكي');
   String get currency => _t('AED', 'د.إ');
