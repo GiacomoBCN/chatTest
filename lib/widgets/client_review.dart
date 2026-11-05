@@ -193,6 +193,7 @@ class _ClientReviewState extends State<ClientReview> {
                 value: _reason,
                 isExpanded: true,
                 dropdownColor: c.surface,
+                focusColor: Colors.transparent,
                 borderRadius: BorderRadius.circular(Radii.control),
                 hint:
                     Text(s.reasonHint, style: TextStyle(fontSize: TypeRole.label, color: c.muted)),
