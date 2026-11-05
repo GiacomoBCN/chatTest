@@ -1,82 +1,41 @@
-# AI Agent Interaction Patterns - Trust & Accountability PoC
+# Falak · AI assistant concept
 
-A coded prototype exploring human-AI agent interaction patterns with focus on hallucination mitigation, transparency, and user trust in high-stakes environments.
+A coded prototype of a banking AI assistant that shows **where each answer comes from** and **how sure it is**, and hands over to a person when it should. Falak is a fictional bank; every name and figure in the demo is invented.
 
-## Project Overview
+**[Open the demo](https://giacomobcn.github.io/chatTest/)** · English and Arabic · light and dark
 
-This PoC demonstrates **four interaction scenarios** between users (internal staff and customers) and AI agents, showcasing UX strategies to manage uncertainty, attribution, and accountability:
+## Four examples
 
-1. **Factual Query** (High Confidence)
-   - Direct database query with real-time data
-   - 99% confidence score, clear source attribution
-   - Pattern: Simple, confident response with data provenance
+The demo runs four scripted examples. Each one shows a different behaviour.
 
-2. **Interpretive Analysis** (Medium Confidence)
-   - AI estimation with partial data availability
-   - 73% confidence score, data quality alerts visible
-   - Pattern: Transparent uncertainty, breakdown of confirmed vs estimated data
+| Example | Who it's for | What it shows |
+|---|---|---|
+| **Balance** | Customer | A fact read from the system. Answered directly, with its source and how fresh it is. |
+| **Spending** | Customer | An estimate. The total is a range, and the answer separates what is confirmed from what is estimated or not yet synced. |
+| **Loan advice** | Customer | A question an AI shouldn't decide. It hands the customer to an advisor, with wait times and the conversation passed along. |
+| **Client to contact** | Bank staff | The AI suggests a client for a relationship manager to contact. A person reviews it and signs off, and the decision is logged. |
 
-3. **Advisory Query** (Human Handoff Required)
-   - Request beyond AI agent scope (personalized financial advice)
-   - Pattern: Graceful boundary recognition, specialist connection workflow
+## Design decisions
 
-4. **Recommendation with Accountability**
-   - AI-driven suggestion requiring human oversight
-   - Pattern: Accountability checkpoint before execution, reasoning transparency
+- **Words and marks, not percentages.** A number like "73%" reads as precise even when it isn't calibrated. Each answer instead carries a mark borrowed from banknote printing: solid for data from the system, hatched for an estimate, dotted for something not yet confirmed. The marks work without colour.
+- **Red only for real alarms.** Uncertainty isn't an error, so it's never shown in red.
+- **The answer comes first.** The amount or the recommendation leads; the source sits in one line under it, and the reasoning opens on request.
+- **Same signals in both languages.** English and Arabic show identical trust cues. Switching language translates the whole conversation, including screen-reader labels.
+- **Accessible by default.** Text contrast of at least 4.5:1 in both themes, a visible keyboard focus, real buttons, and reduced motion when the system asks for it.
 
-## Key Design Principles
+## Visual language
 
-**Core Focus**: Interaction design and visual solutions to reduce uncertainty and increase trustworthiness, not UI aesthetics.
+The identity comes from banknote security printing, the oldest trust technology a bank has: intaglio-green ink on cool paper, a single guilloche rosette, and an engraved temple emblem. The type is Readex Pro, one family for Latin and Arabic.
 
-### Trust Mechanisms
+## Run it locally
 
-- **Confidence Scoring**: Always visible, contextual explanation of AI certainty
-- **Source Attribution**: Every response shows data origin and freshness
-- **Accountability Tracking**: Explicit checkpoints for decisions requiring human oversight
-- **Human Handoff**: Clear escalation paths when AI reaches capability boundaries
+Requires [Flutter](https://docs.flutter.dev/get-started/install) 3.24 or later.
 
-### Streaming Validation Pattern
+```bash
+flutter pub get
+flutter run -d chrome
+```
 
-Rather than showing a blank waiting state, the interface reveals the AI agent's reasoning process in real-time:
+## Built with
 
-- **Step-by-step transparency**: "Analyzing transaction history..." → "Categorizing expenditures..." → "Cross-referencing patterns..." → "Calculating confidence intervals..."
-- **Reduces perceived latency**: Users see progress, not just loading spinners
-- **Builds trust**: Makes AI decision-making visible and understandable
-- **Manages anxiety**: Critical in financial contexts where users need reassurance during processing
-
-## Technical Implementation
-
-- **Flutter/Dart** for cross-platform chat interface
-- **Hardcoded interaction flows** (no backend/AI integration - pure UX prototype)
-- **Multi-language support** (English/Arabic) - fully functional
-- **Built with Claude Code** for rapid prototyping
-
-## Purpose
-
-This prototype explores:
-1. How to design AI agent interfaces that acknowledge and communicate uncertainty
-2. Visual patterns that increase user trust in AI-generated responses
-3. Interaction flows that balance AI efficiency with human accountability
-4. Cross-cultural communication patterns (high-context vs low-context users)
-
-## Live Demo
-
-**[View Demo](https://giacomobcn.github.io/chatTest/)**
-
-*Switch language using EN/AR toggle in header.*
-
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the [online documentation](https://docs.flutter.dev/), which offers tutorials, samples, guidance on mobile development, and a full API reference.
-
-## License
-
-This is a proof-of-concept project for research and learning purposes.
+Flutter and Dart. No backend and no live AI: the conversations are scripted to study the interaction patterns. Built with Claude Code.
