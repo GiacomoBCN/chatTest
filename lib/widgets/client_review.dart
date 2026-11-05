@@ -174,6 +174,7 @@ class _ClientReviewState extends State<ClientReview> {
           values: _Decision.values,
           selected: _decision,
           label: (d) => d == _Decision.approve ? s.approve : s.decline,
+          accent: (d) => d == _Decision.decline ? c.danger : null,
           onChanged: (d) => setState(() {
             if (d != _decision) _reason = null;
             _decision = d;
@@ -223,7 +224,7 @@ class _ClientReviewState extends State<ClientReview> {
                 }
               : null,
           style: FilledButton.styleFrom(
-            backgroundColor: c.staff,
+            backgroundColor: _decision == _Decision.decline ? c.danger : c.staff,
             foregroundColor: c.surface,
             disabledBackgroundColor: c.sunk,
             disabledForegroundColor: c.muted,
@@ -255,7 +256,7 @@ class _ClientReviewState extends State<ClientReview> {
     String two(int n) => n.toString().padLeft(2, '0');
     final time = '${two(_signedAt!.hour)}:${two(_signedAt!.minute)}';
 
-    Widget row(String k, String v) => Padding(
+    Widget row(String k, String v, {Color? color}) => Padding(
           padding: const EdgeInsets.symmetric(vertical: 5),
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             SizedBox(
@@ -265,7 +266,11 @@ class _ClientReviewState extends State<ClientReview> {
             ),
             Expanded(
               child: Text(v,
-                  style: t.bodyMedium!.copyWith(fontSize: TypeRole.small, fontFeatures: tabular)),
+                  style: t.bodyMedium!.copyWith(
+                      fontSize: TypeRole.small,
+                      fontFeatures: tabular,
+                      color: color,
+                      fontWeight: color != null ? FontWeight.w600 : null)),
             ),
           ]),
         );
@@ -288,7 +293,8 @@ class _ClientReviewState extends State<ClientReview> {
             ),
           ]),
           const SizedBox(height: Space.s),
-          row(s.rDecision, _decision == _Decision.approve ? s.rApproved : s.rDeclined),
+          row(s.rDecision, _decision == _Decision.approve ? s.rApproved : s.rDeclined,
+              color: _decision == _Decision.decline ? c.danger : null),
           row(s.rReason, reasons[_reason!]),
           row(s.rFirstRead, _readLabel(s, _read!)),
           row(s.rBy, s.rByValue),
@@ -376,11 +382,13 @@ class _Choice<T> extends StatelessWidget {
   final T? selected;
   final String Function(T) label;
   final ValueChanged<T> onChanged;
+  final Color? Function(T)? accent; // per-option colour, e.g. red for Decline
   const _Choice({
     required this.values,
     required this.selected,
     required this.label,
     required this.onChanged,
+    this.accent,
   });
 
   @override
@@ -395,15 +403,21 @@ class _Choice<T> extends StatelessWidget {
             child: OutlinedButton(
               onPressed: () => onChanged(values[i]),
               style: OutlinedButton.styleFrom(
-                foregroundColor: values[i] == selected ? c.surface : c.text,
-                backgroundColor: values[i] == selected ? c.staff : null,
+                foregroundColor:
+                    values[i] == selected ? c.surface : (accent?.call(values[i]) ?? c.text),
+                backgroundColor:
+                    values[i] == selected ? (accent?.call(values[i]) ?? c.staff) : null,
                 minimumSize: const Size(0, 44),
                 padding: const EdgeInsets.symmetric(horizontal: Space.s),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Radii.control)),
                 textStyle: labelStyle(weight: FontWeight.w500),
               ).copyWith(
                 side: focusSide(
-                    c.text, BorderSide(color: values[i] == selected ? c.staff : c.hairStrong)),
+                    c.text,
+                    BorderSide(
+                        color: values[i] == selected
+                            ? (accent?.call(values[i]) ?? c.staff)
+                            : (accent?.call(values[i]) ?? c.hairStrong))),
               ),
               child: Text(label(values[i]), maxLines: 1, overflow: TextOverflow.ellipsis),
             ),

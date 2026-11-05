@@ -55,7 +55,7 @@ class FalakColors extends ThemeExtension<FalakColors> {
     staff: Color(0xFF1D5A45),
     staffSoft: Color(0xFFE3EEE8),
     guilloche: Color(0x2E1D5A45),
-    danger: Color(0xFFA3281C),
+    danger: Color(0xFFD32F2F),
   );
 
   static const dark = FalakColors(
@@ -73,7 +73,7 @@ class FalakColors extends ThemeExtension<FalakColors> {
     staff: Color(0xFF8CC7AE),
     staffSoft: Color(0xFF17261F),
     guilloche: Color(0x298CC7AE),
-    danger: Color(0xFFF08A7E),
+    danger: Color(0xFFF26B6B),
   );
 
   static FalakColors of(BuildContext context) => Theme.of(context).extension<FalakColors>()!;
