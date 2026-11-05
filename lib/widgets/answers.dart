@@ -78,7 +78,7 @@ class _Spending extends StatelessWidget {
               fontSize: TypeRole.label,
               color: link ? c.ink : c.text,
               fontWeight: link ? FontWeight.w500 : FontWeight.w400));
-      return InkWell(
+      return RingInkWell(
         onTap: link ? () => notInDemo(context) : null,
         borderRadius: BorderRadius.circular(8),
         child: Padding(
@@ -216,7 +216,7 @@ class _Loan extends StatelessWidget {
     final c = FalakColors.of(context);
     final t = Theme.of(context).textTheme;
 
-    Widget option(IconData icon, String title, String meta) => InkWell(
+    Widget option(IconData icon, String title, String meta) => RingInkWell(
           onTap: () => notInDemo(context),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: Space.l, vertical: Space.m),

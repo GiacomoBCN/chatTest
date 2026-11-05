@@ -47,7 +47,7 @@ class FalakColors extends ThemeExtension<FalakColors> {
     text: Color(0xFF14211C),
     muted: Color(0xFF4E5B55),
     hair: Color(0xFFD3DAD5),
-    hairStrong: Color(0xFF8C9A93),
+    hairStrong: Color(0xFF78867F),
     ink: Color(0xFF1D5A45),
     onInk: Color(0xFFFFFFFF),
     userBubble: Color(0xFF1D5A45),
@@ -180,6 +180,8 @@ ThemeData buildFalakTheme(Brightness brightness) {
       contentTextStyle: TextStyle(color: c.surface, fontSize: TypeRole.label),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Radii.control)),
     ),
+    filledButtonTheme: FilledButtonThemeData(style: ButtonStyle(side: focusSide(c.text))),
+    textButtonTheme: TextButtonThemeData(style: ButtonStyle(side: focusSide(c.text))),
     checkboxTheme: CheckboxThemeData(
       side: BorderSide(color: c.hairStrong, width: 1.5),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
@@ -200,3 +202,67 @@ String ltr(String s) => '${String.fromCharCode(0x2066)}$s${String.fromCharCode(0
 /// textStyle is given, so every label goes through this.
 TextStyle labelStyle({double size = TypeRole.label, FontWeight weight = FontWeight.w500}) =>
     GoogleFonts.readexPro(fontSize: size, fontWeight: weight);
+
+/// Keyboard focus ring: a 2px outline in the text colour (≥14:1 on both
+/// themes), drawn only when focused, so it never depends on a faint fill.
+WidgetStateProperty<BorderSide?> focusSide(Color ring, [BorderSide? rest]) =>
+    WidgetStateProperty.resolveWith((states) =>
+        states.contains(WidgetState.focused) ? BorderSide(color: ring, width: 2) : rest);
+
+/// InkWell with a visible keyboard focus ring.
+class RingInkWell extends StatefulWidget {
+  final VoidCallback? onTap;
+  final BorderRadius? borderRadius;
+  final Color? hoverColor;
+  final Color? focusColor;
+  final Widget child;
+  const RingInkWell({
+    super.key,
+    required this.onTap,
+    required this.child,
+    this.borderRadius,
+    this.hoverColor,
+    this.focusColor,
+  });
+
+  @override
+  State<RingInkWell> createState() => _RingInkWellState();
+}
+
+class _RingInkWellState extends State<RingInkWell> {
+  bool _focused = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = FalakColors.of(context);
+    final keyboard = FocusManager.instance.highlightMode == FocusHighlightMode.traditional;
+    return InkWell(
+      onTap: widget.onTap,
+      borderRadius: widget.borderRadius,
+      hoverColor: widget.hoverColor,
+      focusColor: widget.focusColor ?? Colors.transparent,
+      onFocusChange: (f) => setState(() => _focused = f),
+      child: Container(
+        foregroundDecoration: _focused && keyboard
+            ? BoxDecoration(
+                border: Border.all(color: c.text, width: 2),
+                borderRadius: widget.borderRadius,
+              )
+            : null,
+        child: widget.child,
+      ),
+    );
+  }
+}
+
+/// Short confirmation, sized to the conversation rather than the window.
+void showToast(BuildContext context, String message) {
+  final w = MediaQuery.sizeOf(context).width;
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(
+      content: Text(message),
+      width: w < 432 ? null : 400,
+      duration: const Duration(seconds: 3),
+    ));
+}

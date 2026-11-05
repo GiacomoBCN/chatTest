@@ -131,7 +131,7 @@ class _IndexRow extends StatelessWidget {
       selected: selected,
       label: '$title. $desc',
       excludeSemantics: true,
-      child: InkWell(
+      child: RingInkWell(
         onTap: enabled ? onTap : null,
         hoverColor: c.sunk,
         focusColor: c.ink.withOpacity(0.12),

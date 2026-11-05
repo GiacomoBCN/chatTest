@@ -164,12 +164,7 @@ class SlipActions extends StatelessWidget {
   }
 }
 
-void notInDemo(BuildContext context) {
-  final s = S.of(context);
-  ScaffoldMessenger.of(context)
-    ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(content: Text(s.notInDemo), duration: const Duration(seconds: 2)));
-}
+void notInDemo(BuildContext context) => showToast(context, S.of(context).notInDemo);
 
 /// Progressive disclosure: one line, opened on demand.
 class WhySection extends StatefulWidget {
@@ -195,7 +190,7 @@ class _WhySectionState extends State<WhySection> {
         Semantics(
           button: true,
           expanded: _open,
-          child: InkWell(
+          child: RingInkWell(
             onTap: () => setState(() => _open = !_open),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: Space.l, vertical: Space.m),

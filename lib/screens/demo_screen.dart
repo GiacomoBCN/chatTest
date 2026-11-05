@@ -314,12 +314,11 @@ class _DemoScreenState extends State<DemoScreen> {
               label: Text(s.examples),
               style: OutlinedButton.styleFrom(
                 foregroundColor: c.text,
-                side: BorderSide(color: c.hairStrong),
                 minimumSize: const Size(0, 46),
                 padding: const EdgeInsets.symmetric(horizontal: Space.m),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Radii.control)),
                 textStyle: labelStyle(weight: FontWeight.w500),
-              ),
+              ).copyWith(side: focusSide(c.text, BorderSide(color: c.hairStrong))),
             ),
             const SizedBox(width: Space.s),
           ],
@@ -534,9 +533,8 @@ class _HeaderButton extends StatelessWidget {
         fixedSize: const Size(40, 40),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(Radii.control - 2),
-          side: BorderSide(color: c.hair),
         ),
-      ),
+      ).copyWith(side: focusSide(c.text, BorderSide(color: c.hairStrong))),
     );
   }
 }
@@ -558,7 +556,7 @@ class _LanguageSwitch extends StatelessWidget {
         selected: on,
         label: semantic,
         excludeSemantics: true,
-        child: InkWell(
+        child: RingInkWell(
           borderRadius: BorderRadius.circular(8),
           onTap: on ? null : () => onChanged(value),
           child: AnimatedContainer(

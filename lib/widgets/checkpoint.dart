@@ -15,9 +15,7 @@ class _CheckpointState extends State<Checkpoint> {
   int? _reason;
 
   void _toast(String msg) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(msg)));
+    showToast(context, msg);
   }
 
   @override
@@ -36,7 +34,7 @@ class _CheckpointState extends State<Checkpoint> {
         ),
         const SizedBox(height: Space.s),
         MergeSemantics(
-          child: InkWell(
+          child: RingInkWell(
             borderRadius: BorderRadius.circular(Radii.control),
             onTap: () => setState(() => _reviewed = !_reviewed),
             child: Padding(
@@ -118,11 +116,10 @@ class _CheckpointState extends State<Checkpoint> {
                 onPressed: () => _toast(s.declinedToast),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: c.text,
-                  side: BorderSide(color: c.hairStrong),
                   minimumSize: const Size(0, 46),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Radii.control)),
                   textStyle: labelStyle(weight: FontWeight.w600),
-                ),
+                ).copyWith(side: focusSide(c.text, BorderSide(color: c.hairStrong))),
                 child: Text(s.decline),
               ),
             ),
