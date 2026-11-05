@@ -277,6 +277,7 @@ class S {
       : [('ATM · City Mall', 'Oct 29', '1,500'), ('ATM · Airport', 'Oct 30', '1,000')];
 
   // Free text
-  String get fallback => _t('This demo answers four scripted examples. Open Examples to run one.',
-      'هذا العرض يجيب على أربعة أمثلة مُعدّة مسبقاً. افتح الأمثلة لتشغيل أحدها.');
+  String get fallback => _t(
+      'This demo answers four scripted examples. Pick one from Examples, or use Talk to a person.',
+      'هذا العرض يجيب على أربعة أمثلة مُعدّة مسبقاً. اختر أحدها من الأمثلة، أو استخدم التحدث مع شخص.');
 }
