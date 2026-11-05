@@ -16,12 +16,11 @@ class FalakApp extends StatefulWidget {
 
 class _FalakAppState extends State<FalakApp> {
   bool _isArabic = false;
-  bool? _isDark; // null = follow the system until the user chooses
+  bool _isDark = false; // opens in light; the header toggle switches
 
   @override
   Widget build(BuildContext context) {
-    final systemDark = MediaQuery.platformBrightnessOf(context) == Brightness.dark;
-    final isDark = _isDark ?? systemDark;
+    final isDark = _isDark;
 
     return AppScope(
       isArabic: _isArabic,
