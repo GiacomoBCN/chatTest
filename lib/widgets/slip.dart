@@ -297,3 +297,55 @@ class ProgressSteps extends StatelessWidget {
     );
   }
 }
+
+/// "Something wrong with this answer?" – a way to correct the AI on any answer.
+class FeedbackLine extends StatefulWidget {
+  const FeedbackLine({super.key});
+
+  @override
+  State<FeedbackLine> createState() => _FeedbackLineState();
+}
+
+class _FeedbackLineState extends State<FeedbackLine> {
+  bool _sent = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = S.of(context);
+    final c = FalakColors.of(context);
+    final t = Theme.of(context).textTheme;
+    if (_sent) {
+      return Semantics(
+        liveRegion: true,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: Space.l, vertical: Space.m),
+          child: Row(children: [
+            Icon(Icons.check, size: 16, color: c.ink),
+            const SizedBox(width: Space.s),
+            Expanded(
+              child: Text(s.wrongThanks,
+                  style: t.bodyMedium!.copyWith(fontSize: TypeRole.small, color: c.muted)),
+            ),
+          ]),
+        ),
+      );
+    }
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: Space.s, vertical: Space.xs),
+      child: Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: TextButton.icon(
+          onPressed: () => setState(() => _sent = true),
+          icon: Icon(Icons.flag_outlined, size: 16, color: c.muted),
+          label: Text(s.wrongAnswer),
+          style: TextButton.styleFrom(
+            foregroundColor: c.muted,
+            minimumSize: const Size(44, 44),
+            padding: const EdgeInsets.symmetric(horizontal: Space.s),
+            textStyle: labelStyle(size: TypeRole.small, weight: FontWeight.w400),
+          ),
+        ),
+      ),
+    );
+  }
+}

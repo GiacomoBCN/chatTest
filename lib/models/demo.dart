@@ -6,7 +6,7 @@ extension ScenarioInfo on Scenario {
   bool get isStaff => this == Scenario.client;
 }
 
-enum EntryKind { question, answer, freeText, fallback }
+enum EntryKind { question, answer, freeText, fallback, personQuestion, personAnswer }
 
 class ChatEntry {
   final int id;
@@ -15,6 +15,7 @@ class ChatEntry {
   final String? text; // free text typed by the user
   final int stepsDone; // progress steps completed so far
   final bool done;
+  final bool stopped;
 
   const ChatEntry({
     required this.id,
@@ -23,14 +24,16 @@ class ChatEntry {
     this.text,
     this.stepsDone = 0,
     this.done = true,
+    this.stopped = false,
   });
 
-  ChatEntry copyWith({int? stepsDone, bool? done}) => ChatEntry(
+  ChatEntry copyWith({int? stepsDone, bool? done, bool? stopped}) => ChatEntry(
         id: id,
         kind: kind,
         scenario: scenario,
         text: text,
         stepsDone: stepsDone ?? this.stepsDone,
         done: done ?? this.done,
+        stopped: stopped ?? this.stopped,
       );
 }

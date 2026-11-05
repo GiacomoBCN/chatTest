@@ -1,3 +1,21 @@
+CHANGELOG — 2026-11-05 (2)
+==========================
+
+Mechanisms: trust patterns revised after research
+--------------------------------------------------
+
+- Balance and loan answer straight away; progress steps remain only for
+  multi-source work (spending, staff review), with variable timing and Stop.
+- Estimated and unsynced spending items open a sheet listing the items.
+- "Talk to a person" is always available in the header.
+- Every customer answer can be flagged as wrong.
+- Staff review: independent first read before the AI suggestion; evidence
+  labelled verified vs inferred/sensitive; three specific checks; reason
+  required for approve and decline; a receipt replaces the form once signed.
+  The conversion-rate argument was removed.
+- Narrow phones show the emblem alone in the header.
+
+
 CHANGELOG — 2026-11-05
 ======================
 

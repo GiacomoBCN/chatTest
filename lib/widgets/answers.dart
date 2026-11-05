@@ -2,15 +2,23 @@ import 'package:flutter/material.dart';
 import '../l10n/strings.dart';
 import '../models/demo.dart';
 import '../theme/falak_theme.dart';
-import 'checkpoint.dart';
+import 'client_review.dart';
 import 'marks.dart';
 import 'slip.dart';
 
-List<String> stepsFor(S s, Scenario sc) => switch (sc) {
-      Scenario.balance => s.steps1,
+/// Progress steps only where the assistant really consults several sources.
+/// A balance read or a hand-off answers straight away.
+List<String>? stepsFor(S s, Scenario sc) => switch (sc) {
       Scenario.spending => s.steps2,
-      Scenario.loan => s.steps3,
       Scenario.client => s.steps4,
+      Scenario.balance || Scenario.loan => null,
+    };
+
+/// Each step takes its own time; the last one resolves quickly.
+List<int> stepDurations(Scenario sc) => switch (sc) {
+      Scenario.spending => const [900, 750, 350],
+      Scenario.client => const [800, 700, 350],
+      _ => const [],
     };
 
 String questionFor(S s, Scenario sc) => switch (sc) {
@@ -23,22 +31,52 @@ String questionFor(S s, Scenario sc) => switch (sc) {
 /// Renders one assistant answer for a scenario, in the current language.
 class AnswerView extends StatelessWidget {
   final ChatEntry entry;
-  const AnswerView({super.key, required this.entry});
+  final VoidCallback onStop;
+  const AnswerView({super.key, required this.entry, required this.onStop});
 
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
+    final c = FalakColors.of(context);
     final sc = entry.scenario!;
+    if (entry.stopped) {
+      return Slip(sections: [
+        SlipSection(
+          child: Text(s.stopped,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium!
+                  .copyWith(fontSize: TypeRole.label, color: c.muted)),
+        ),
+      ]);
+    }
     if (!entry.done) {
       return Slip(sections: [
-        SlipSection(child: ProgressSteps(steps: stepsFor(s, sc), done: entry.stepsDone)),
+        SlipSection(child: ProgressSteps(steps: stepsFor(s, sc)!, done: entry.stepsDone)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: Space.s, vertical: Space.xs),
+          child: Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: TextButton.icon(
+              onPressed: onStop,
+              icon: Icon(Icons.stop_circle_outlined, size: 18, color: c.text),
+              label: Text(s.stop),
+              style: TextButton.styleFrom(
+                foregroundColor: c.text,
+                minimumSize: const Size(44, 44),
+                padding: const EdgeInsets.symmetric(horizontal: Space.s),
+                textStyle: labelStyle(),
+              ),
+            ),
+          ),
+        ),
       ]);
     }
     return switch (sc) {
       Scenario.balance => const _Balance(),
       Scenario.spending => const _Spending(),
       Scenario.loan => const _Loan(),
-      Scenario.client => const _Client(),
+      Scenario.client => const ClientReview(),
     };
   }
 }
@@ -59,6 +97,7 @@ class _Balance extends StatelessWidget {
         ),
       ),
       SlipActions(labels: [s.viewStatement, s.downloadPdf]),
+      const FeedbackLine(),
     ]);
   }
 }
@@ -72,25 +111,32 @@ class _Spending extends StatelessWidget {
     final c = FalakColors.of(context);
     final t = Theme.of(context).textTheme;
 
-    Widget legend(MarkKind k, String label, String amount, {bool link = false}) {
-      final text = Text(label,
-          style: t.bodyMedium!.copyWith(
-              fontSize: TypeRole.label,
-              color: link ? c.ink : c.text,
-              fontWeight: link ? FontWeight.w500 : FontWeight.w400));
-      return RingInkWell(
-        onTap: link ? () => notInDemo(context) : null,
-        borderRadius: BorderRadius.circular(8),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6),
-          child: Row(children: [
-            TrustMark(k, size: 14),
-            const SizedBox(width: Space.s + 2),
-            Expanded(child: text),
-            Text(ltr(amount),
-                style: t.bodyMedium!.copyWith(fontSize: TypeRole.label, fontFeatures: tabular)),
-          ]),
-        ),
+    Widget legend(MarkKind k, String label, String amount, {VoidCallback? onTap}) {
+      final link = onTap != null;
+      final row = Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Row(children: [
+          TrustMark(k, size: 14),
+          const SizedBox(width: Space.s + 2),
+          Expanded(
+            child: Text(label,
+                style: t.bodyMedium!.copyWith(
+                    fontSize: TypeRole.label,
+                    color: link ? c.ink : c.text,
+                    fontWeight: link ? FontWeight.w500 : FontWeight.w400)),
+          ),
+          Text(ltr(amount),
+              style: t.bodyMedium!.copyWith(fontSize: TypeRole.label, fontFeatures: tabular)),
+          if (link) ...[
+            const SizedBox(width: Space.xs),
+            Icon(Icons.chevron_right, size: 18, color: c.ink),
+          ],
+        ]),
+      );
+      if (!link) return row;
+      return Semantics(
+        button: true,
+        child: RingInkWell(onTap: onTap, borderRadius: BorderRadius.circular(8), child: row),
       );
     }
 
@@ -119,8 +165,12 @@ class _Spending extends StatelessWidget {
             ]),
             const SizedBox(height: Space.s),
             legend(MarkKind.solid, s.confirmed, '38,445'),
-            legend(MarkKind.hatch, s.estimatedLink, '4,285', link: true),
-            legend(MarkKind.dots, s.unsyncedLink, '2,500', link: true),
+            legend(MarkKind.hatch, s.estimatedLink, '4,285',
+                onTap: () => _showItems(
+                    context, s.estItemsTitle, s.estItemsLead, s.estItems, MarkKind.hatch)),
+            legend(MarkKind.dots, s.unsyncedLink, '2,500',
+                onTap: () => _showItems(
+                    context, s.atmItemsTitle, s.atmItemsLead, s.atmItems, MarkKind.dots)),
           ],
         ),
       ),
@@ -139,9 +189,82 @@ class _Spending extends StatelessWidget {
         ),
       ),
       WhySection(points: s.why2, warn: s.why2Warn),
-      SlipActions(labels: [s.reportIssue]),
+      const FeedbackLine(),
     ]);
   }
+}
+
+/// The items behind an estimate, so checking it costs one tap.
+void _showItems(BuildContext context, String title, String lead,
+    List<(String, String, String)> items, MarkKind mark) {
+  final c = FalakColors.of(context);
+  showModalBottomSheet<void>(
+    context: context,
+    showDragHandle: true,
+    backgroundColor: c.surface,
+    constraints: const BoxConstraints(maxWidth: 480),
+    shape:
+        const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+    builder: (ctx) {
+      final s = S.of(ctx);
+      final t = Theme.of(ctx).textTheme;
+      return SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(Space.l, 0, Space.l, Space.xl),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(children: [
+                TrustMark(mark, size: 18),
+                const SizedBox(width: Space.s),
+                Semantics(
+                  header: true,
+                  child: Text(title,
+                      style: t.titleMedium!
+                          .copyWith(fontSize: TypeRole.title, fontWeight: FontWeight.w600)),
+                ),
+              ]),
+              const SizedBox(height: Space.s),
+              Text(lead,
+                  style: t.bodyMedium!
+                      .copyWith(fontSize: TypeRole.label, color: c.muted, height: 1.45)),
+              const SizedBox(height: Space.m),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(Radii.group),
+                  border: Border.all(color: c.hair),
+                ),
+                child: Column(children: [
+                  for (var i = 0; i < items.length; i++)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: Space.m),
+                      decoration: BoxDecoration(
+                        border: i == 0 ? null : Border(top: BorderSide(color: c.hair)),
+                      ),
+                      child: Row(children: [
+                        Expanded(
+                          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                            Text(items[i].$1,
+                                style: t.bodyLarge!.copyWith(fontSize: TypeRole.body)),
+                            Text(items[i].$2,
+                                style: t.bodyMedium!
+                                    .copyWith(fontSize: TypeRole.small, color: c.muted)),
+                          ]),
+                        ),
+                        Text('${ltr(items[i].$3)} ${s.currency}',
+                            style: t.bodyLarge!
+                                .copyWith(fontSize: TypeRole.body, fontFeatures: tabular)),
+                      ]),
+                    ),
+                ]),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
 }
 
 /// Proportional strip drawn with the same print patterns as the marks.
@@ -153,14 +276,11 @@ class CertaintyStrip extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = FalakColors.of(context);
     return ExcludeSemantics(
-      child: Directionality(
-        textDirection: Directionality.of(context),
-        child: SizedBox(
-          height: 14,
-          child: CustomPaint(
-            painter: _StripPainter(parts, c.ink, Directionality.of(context)),
-            size: Size.infinite,
-          ),
+      child: SizedBox(
+        height: 14,
+        child: CustomPaint(
+          painter: _StripPainter(parts, c.ink, Directionality.of(context)),
+          size: Size.infinite,
         ),
       ),
     );
@@ -215,8 +335,34 @@ class _Loan extends StatelessWidget {
     final s = S.of(context);
     final c = FalakColors.of(context);
     final t = Theme.of(context).textTheme;
+    return Slip(sections: [
+      SlipSection(
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          ProvenanceLine(
+            mark: IconMark(Icons.person_outline, color: c.ink, size: 16),
+            strong: s.markPerson,
+            rest: s.exLoan,
+          ),
+          const SizedBox(height: Space.m - 2),
+          Text(s.loanAnswer, style: t.bodyLarge!.copyWith(fontSize: TypeRole.body, height: 1.5)),
+        ]),
+      ),
+      ...handoffOptions(context),
+      SlipActions(labels: [s.loanProducts, s.loanCalculator]),
+      const FeedbackLine(),
+    ]);
+  }
+}
 
-    Widget option(IconData icon, String title, String meta) => RingInkWell(
+/// The ways to reach a person: shared by the loan answer and "Talk to a person".
+List<Widget> handoffOptions(BuildContext context) {
+  final s = S.of(context);
+  final c = FalakColors.of(context);
+  final t = Theme.of(context).textTheme;
+
+  Widget option(IconData icon, String title, String meta) => Semantics(
+        button: true,
+        child: RingInkWell(
           onTap: () => notInDemo(context),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: Space.l, vertical: Space.m),
@@ -235,81 +381,33 @@ class _Loan extends StatelessWidget {
               Icon(Icons.chevron_right, size: 20, color: c.hairStrong),
             ]),
           ),
-        );
+        ),
+      );
 
-    return Slip(sections: [
-      SlipSection(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          ProvenanceLine(
-            mark: IconMark(Icons.person_outline, color: c.ink, size: 16),
-            strong: s.markPerson,
-            rest: s.exLoan,
-          ),
-          const SizedBox(height: Space.m - 2),
-          Text(s.loanAnswer, style: t.bodyLarge!.copyWith(fontSize: TypeRole.body, height: 1.5)),
-        ]),
-      ),
-      option(Icons.chat_bubble_outline, s.chatAdvisor, s.chatAdvisorMeta),
-      option(Icons.call_outlined, s.bookCall, s.bookCallMeta),
-      SlipSection(
-        child: Text(s.handoffShare,
-            style: t.bodyMedium!.copyWith(fontSize: TypeRole.small, color: c.muted, height: 1.45)),
-      ),
-      SlipActions(labels: [s.loanProducts, s.loanCalculator]),
-    ]);
-  }
+  return [
+    option(Icons.chat_bubble_outline, s.chatAdvisor, s.chatAdvisorMeta),
+    option(Icons.call_outlined, s.bookCall, s.bookCallMeta),
+    SlipSection(
+      child: Text(s.handoffShare,
+          style: t.bodyMedium!.copyWith(fontSize: TypeRole.small, color: c.muted, height: 1.45)),
+    ),
+  ];
 }
 
-class _Client extends StatelessWidget {
-  const _Client();
+/// Answer to "Talk to a person", available at any time from the header.
+class PersonAnswer extends StatelessWidget {
+  const PersonAnswer({super.key});
 
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
-    final c = FalakColors.of(context);
     final t = Theme.of(context).textTheme;
-
-    Widget fact(String k, String v) => Expanded(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(k, style: t.bodySmall!.copyWith(fontSize: TypeRole.tiny, color: c.muted)),
-            const SizedBox(height: 2),
-            Text(v,
-                style:
-                    t.bodyMedium!.copyWith(fontSize: TypeRole.label, fontWeight: FontWeight.w500)),
-          ]),
-        );
-
     return Slip(sections: [
-      Container(
-        color: c.staffSoft,
-        padding: const EdgeInsets.symmetric(horizontal: Space.l, vertical: Space.s + 2),
-        child: Row(children: [
-          IconMark(Icons.badge_outlined, color: c.staff, size: 18),
-          const SizedBox(width: Space.s),
-          Text(s.staffView,
-              style: t.bodyMedium!
-                  .copyWith(fontSize: TypeRole.small, color: c.staff, fontWeight: FontWeight.w600)),
-        ]),
-      ),
       SlipSection(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(s.recommended,
-              style: t.bodyMedium!.copyWith(fontSize: TypeRole.label, color: c.muted)),
-          const SizedBox(height: 2),
-          Text(s.rmAction,
-              style: t.titleMedium!.copyWith(
-                  fontSize: TypeRole.title + 2, fontWeight: FontWeight.w600, height: 1.3)),
-        ]),
+        child: Text(s.personAnswer,
+            style: t.bodyLarge!.copyWith(fontSize: TypeRole.body, height: 1.5)),
       ),
-      SlipSection(
-        child: Column(children: [
-          Row(children: [fact(s.segment, s.segmentValue), fact(s.clientSince, s.clientSinceValue)]),
-          const SizedBox(height: Space.m),
-          Row(children: [fact(s.lastContact, s.lastContactValue), fact(s.risk, s.riskValue)]),
-        ]),
-      ),
-      WhySection(points: s.why4),
-      const SlipSection(child: Checkpoint()),
+      ...handoffOptions(context),
     ]);
   }
 }

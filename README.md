@@ -11,13 +11,16 @@ The demo runs four scripted examples. Each one shows a different behaviour.
 | Example | Who it's for | What it shows |
 |---|---|---|
 | **Balance** | Customer | A fact read from the system. Answered directly, with its source and how fresh it is. |
-| **Spending** | Customer | An estimate. The total is a range, and the answer separates what is confirmed from what is estimated or not yet synced. |
+| **Spending** | Customer | An estimate. The total is a range, the answer separates what is confirmed from what is estimated or not yet synced, and one tap shows the items behind each estimate. |
 | **Loan advice** | Customer | A question an AI shouldn't decide. It hands the customer to an advisor, with wait times and the conversation passed along. |
-| **Client to contact** | Bank staff | The AI suggests a client for a relationship manager to contact. A person reviews it and signs off, and the decision is logged. |
+| **Client to contact** | Bank staff | The AI flags a client for a relationship manager. The manager gives their own read before seeing the AI's suggestion, checks specific points, gives a reason either way, and gets a receipt of what was logged. |
 
 ## Design decisions
 
 - **Words and marks, not percentages.** A number like "73%" reads as precise even when it isn't calibrated. Each answer instead carries a mark borrowed from banknote printing: solid for data from the system, hatched for an estimate, dotted for something not yet confirmed. The marks work without colour.
+- **Steps only when they're real.** A balance is read straight away. Progress steps appear only when the assistant consults several sources, and they can be stopped.
+- **A person is always one tap away.** "Talk to a person" sits in the header, and every answer can be flagged as wrong.
+- **Oversight that isn't a rubber stamp.** The staff reviewer commits to a view before seeing the AI's suggestion, inferred or sensitive data is labelled as such, and approving needs the same justification as declining.
 - **Red only for real alarms.** Uncertainty isn't an error, so it's never shown in red.
 - **The answer comes first.** The amount or the recommendation leads; the source sits in one line under it, and the reasoning opens on request.
 - **Same signals in both languages.** English and Arabic show identical trust cues. Switching language translates the whole conversation, including screen-reader labels.

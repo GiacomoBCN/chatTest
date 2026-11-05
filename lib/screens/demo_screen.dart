@@ -54,25 +54,46 @@ class _DemoScreenState extends State<DemoScreen> {
   Future<void> _runScenario(Scenario sc) async {
     if (_busy) return;
     final run = _run;
-    final steps = stepsFor(S.of(context), sc).length;
+    final steps = stepsFor(S.of(context), sc);
     final answerId = _nextId + 1;
     setState(() {
-      _busy = true;
       _active = sc;
       _entries.add(ChatEntry(id: _nextId++, kind: EntryKind.question, scenario: sc));
-      _entries.add(ChatEntry(id: _nextId++, kind: EntryKind.answer, scenario: sc, done: false));
+      _entries
+          .add(ChatEntry(id: _nextId++, kind: EntryKind.answer, scenario: sc, done: steps == null));
+      _busy = steps != null;
     });
     _toBottom();
-    for (var i = 1; i <= steps; i++) {
-      await Future.delayed(const Duration(milliseconds: 650));
-      if (!mounted || run != _run) return;
-      setState(() => _replace(answerId, (e) => e.copyWith(stepsDone: i)));
+    if (steps == null) return; // a direct read answers straight away
+    final durations = stepDurations(sc);
+    for (var i = 0; i < steps.length; i++) {
+      await Future.delayed(Duration(milliseconds: durations[i]));
+      if (!mounted || run != _run || _isStopped(answerId)) return;
+      setState(() => _replace(answerId, (e) => e.copyWith(stepsDone: i + 1)));
     }
-    await Future.delayed(const Duration(milliseconds: 250));
-    if (!mounted || run != _run) return;
+    if (!mounted || run != _run || _isStopped(answerId)) return;
     setState(() {
       _replace(answerId, (e) => e.copyWith(done: true));
       _busy = false;
+    });
+    _toBottom();
+  }
+
+  bool _isStopped(int id) => _entries.any((e) => e.id == id && e.stopped);
+
+  void _stop(int id) {
+    setState(() {
+      _replace(id, (e) => e.copyWith(stopped: true));
+      _busy = false;
+    });
+  }
+
+  void _talkToPerson() {
+    if (_busy) return;
+    setState(() {
+      _active = null;
+      _entries.add(ChatEntry(id: _nextId++, kind: EntryKind.personQuestion));
+      _entries.add(ChatEntry(id: _nextId++, kind: EntryKind.personAnswer));
     });
     _toBottom();
   }
@@ -211,6 +232,8 @@ class _DemoScreenState extends State<DemoScreen> {
                       fontWeight: FontWeight.w600,
                       height: 1.2)),
               Text(large ? s.bankTagline : s.assistant,
+                  maxLines: large ? 2 : 1,
+                  overflow: TextOverflow.ellipsis,
                   style: t.bodySmall!
                       .copyWith(fontSize: large ? TypeRole.small : TypeRole.tiny, color: c.muted)),
             ],
@@ -242,8 +265,16 @@ class _DemoScreenState extends State<DemoScreen> {
       child: Row(
         children: [
           Expanded(
-              child:
-                  Align(alignment: AlignmentDirectional.centerStart, child: _brand(large: false))),
+            child: LayoutBuilder(
+              builder: (context, box) => Align(
+                alignment: AlignmentDirectional.centerStart,
+                // On narrow phones the emblem alone carries the brand.
+                child: box.maxWidth < 96
+                    ? Semantics(label: s.bank, child: const FalakEmblem(size: 34))
+                    : _brand(large: false),
+              ),
+            ),
+          ),
           _LanguageSwitch(isArabic: scope.isArabic, onChanged: scope.setArabic),
           const SizedBox(width: Space.s),
           _HeaderButton(
@@ -251,6 +282,11 @@ class _DemoScreenState extends State<DemoScreen> {
             tooltip: scope.isDark ? s.switchToLight : s.switchToDark,
             onPressed: scope.toggleTheme,
           ),
+          const SizedBox(width: Space.s),
+          _HeaderButton(
+              icon: Icons.support_agent_outlined,
+              tooltip: s.talkToPerson,
+              onPressed: _talkToPerson),
           if (_entries.isNotEmpty) ...[
             const SizedBox(width: Space.s),
             _HeaderButton(icon: Icons.refresh, tooltip: s.restart, onPressed: _restart),
@@ -283,7 +319,11 @@ class _DemoScreenState extends State<DemoScreen> {
       case EntryKind.freeText:
         return _UserBubble(text: e.text!);
       case EntryKind.answer:
-        return _AssistantRow(child: AnswerView(entry: e));
+        return _AssistantRow(child: AnswerView(entry: e, onStop: () => _stop(e.id)));
+      case EntryKind.personQuestion:
+        return _UserBubble(text: s.qPerson);
+      case EntryKind.personAnswer:
+        return const _AssistantRow(child: PersonAnswer());
       case EntryKind.fallback:
         return _AssistantRow(
           child: Slip(sections: [

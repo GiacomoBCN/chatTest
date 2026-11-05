@@ -73,13 +73,6 @@ class S {
       _t('core banking · 2 min ago', 'النظام المصرفي الأساسي · قبل دقيقتين');
   String get viewStatement => _t('View statement', 'عرض الكشف');
   String get downloadPdf => _t('Download PDF', 'تنزيل PDF');
-  List<String> get steps1 => ar
-      ? [
-          'جارٍ الاتصال بالنظام المصرفي الأساسي…',
-          'جارٍ التحقق من الجلسة…',
-          'جارٍ جلب بيانات الحساب…'
-        ]
-      : ['Connecting to core banking…', 'Checking your session…', 'Fetching account data…'];
 
   // Scenario 2 – spending
   String get q2 => _t('How much did I spend last month?', 'كم أنفقت الشهر الماضي؟');
@@ -112,8 +105,16 @@ class S {
   List<bool> get why2Warn => const [false, true, true, false];
   String get reportIssue => _t('Report an issue', 'الإبلاغ عن مشكلة');
   List<String> get steps2 => ar
-      ? ['جارٍ قراءة المعاملات…', 'جارٍ قراءة بيانات البطاقات…', 'جارٍ مقارنة الإجماليات…']
-      : ['Reading transactions…', 'Reading card data…', 'Cross-checking totals…'];
+      ? [
+          'قراءة المعاملات (28 من 31 يوماً)…',
+          'قراءة معالجة البطاقات (آخر مزامنة قبل 3 أيام)…',
+          'المقارنة مع إجماليات الكشف…'
+        ]
+      : [
+          'Reading transactions (28 of 31 days)…',
+          'Reading card processing (last synced 3 days ago)…',
+          'Cross-checking statement totals…'
+        ];
 
   // Scenario 3 – loan
   String get q3 => _t('Should I take out a personal loan?', 'هل يجب أن آخذ قرضاً شخصياً؟');
@@ -129,71 +130,151 @@ class S {
       'ستتم مشاركة محادثتك مع المستشار، فلن تحتاج إلى التكرار.');
   String get loanProducts => _t('Loan products', 'منتجات القروض');
   String get loanCalculator => _t('Loan calculator', 'حاسبة القروض');
-  List<String> get steps3 => ar
-      ? ['جارٍ فهم الطلب…', 'جارٍ التحقق من نطاق المساعد…']
-      : ['Understanding the request…', 'Checking what the assistant may answer…'];
 
   // Scenario 4 – staff
   String get q4 => _t('Which client should I contact today?', 'أي عميل يجب أن أتواصل معه اليوم؟');
   String get staffView => _t('Relationship manager view', 'واجهة مدير العلاقة');
-  String get recommended => _t('Suggested action', 'الإجراء المقترح');
-  String get rmAction => _t('Contact Ahmed Al-Mansouri today', 'تواصل مع أحمد المنصوري اليوم');
   String get clientName => _t('Ahmed Al-Mansouri', 'أحمد المنصوري');
+  String get clientLabel => _t('Client flagged by the AI', 'عميل حدده الذكاء الاصطناعي');
   String get segment => _t('Segment', 'الفئة');
   String get segmentValue => _t('Premium', 'مميز');
   String get clientSince => _t('Client for', 'عميل منذ');
   String get clientSinceValue => _t('5 years', '5 سنوات');
   String get lastContact => _t('Last contact', 'آخر تواصل');
   String get lastContactValue => _t('3 months ago', 'قبل 3 أشهر');
-  String get risk => _t('Risk', 'المخاطر');
-  String get riskValue => _t('Low', 'منخفضة');
-  List<String> get why4 => ar
+  String get debtToIncome => _t('Debt to income', 'نسبة الدين إلى الدخل');
+  String get debtToIncomeValue => _t('18% · within policy', '18% · ضمن السياسة');
+  // Independent first read
+  String get firstReadTitle => _t('Your read first', 'رأيك أولاً');
+  String get firstReadQ => _t(
+      'Before you see the AI’s suggestion: should this client be contacted about a home loan now?',
+      'قبل أن ترى اقتراح الذكاء الاصطناعي: هل يجب التواصل مع هذا العميل بشأن تمويل سكني الآن؟');
+  String get yes => _t('Yes', 'نعم');
+  String get no => _t('No', 'لا');
+  String get notSure => _t('Not sure', 'لست متأكداً');
+  // The suggestion
+  String get recommended => _t('AI suggestion', 'اقتراح الذكاء الاصطناعي');
+  String get rmAction => _t('Contact Ahmed Al-Mansouri today about a home loan',
+      'تواصل مع أحمد المنصوري اليوم بشأن تمويل سكني');
+  String get evidenceTitle => _t('What the suggestion is based on', 'ما يستند إليه الاقتراح');
+  String get evSalary => _t('Salary up 15%', 'زيادة الراتب 15%');
+  String get evSalaryMeta =>
+      _t('payroll deposits · verified with employer', 'إيداعات الرواتب · موثّقة من صاحب العمل');
+  String get evSavings => _t('Savings up 40% in 3 months', 'زيادة المدخرات 40% خلال 3 أشهر');
+  String get evSavingsMeta => _t('account balances', 'أرصدة الحسابات');
+  String get evMarried => _t('Recently married', 'متزوج حديثاً');
+  String get evMarriedMeta => _t(
+      'inferred from a joint account opened Sep 2026 · not confirmed by the client · sensitive',
+      'مستنتج من حساب مشترك فُتح في سبتمبر 2026 · لم يؤكده العميل · بيانات حساسة');
+  String get yourRead => _t('Your first read', 'رأيك الأول');
+  // Checks and decision
+  String get checksTitle => _t('Before you decide, check', 'قبل أن تقرر، تحقّق من');
+  String get check1 => _t('Where “recently married” comes from, and that it may be used',
+      'مصدر معلومة “متزوج حديثاً”، وأنه يجوز استخدامها');
+  String get check2 => _t('Affordability against income and commitments',
+      'القدرة على السداد مقارنة بالدخل والالتزامات');
+  String get check3 => _t(
+      'No signs of vulnerability or financial difficulty', 'لا مؤشرات على هشاشة أو صعوبات مالية');
+  String get decisionTitle => _t('Your decision', 'قرارك');
+  String get approve => _t('Approve', 'موافقة');
+  String get decline => _t('Decline', 'رفض');
+  String get reasonHint => _t('Reason (required)', 'السبب (مطلوب)');
+  List<String> get approveReasons => ar
       ? [
-          'زيادة في الراتب: ‎+15%‎ (موثّقة من صاحب العمل)',
-          'مؤشر مرحلة حياتية: متزوج حديثاً (تم تحديث الملف)',
-          'المدخرات: زيادة بنسبة 40% خلال آخر 3 أشهر',
-          'آخر تواصل قبل 3 أشهر'
+          'يتوافق مع أهداف العميل المعلنة',
+          'الحدث الحياتي تم تأكيده مع العميل',
+          'القدرة على السداد ضمن السياسة',
+          'أخرى'
         ]
       : [
-          'Salary increase: +15% (verified with employer)',
-          'Life stage: recently married (profile updated)',
-          'Savings up 40% over the last 3 months',
-          'Last contact 3 months ago'
+          'Matches the client’s stated goals',
+          'Life event confirmed with the client',
+          'Affordability within policy',
+          'Other'
         ];
-  String get checkpointTitle => _t('Your decision', 'قرارك');
-  String get attestation => _t(
-      'I have reviewed the client data and the AI suggestion, and this action fits bank policy and the client’s interests.',
-      'لقد راجعت بيانات العميل واقتراح الذكاء الاصطناعي، وهذا الإجراء يتوافق مع سياسة البنك ومصلحة العميل.');
-  String get declineReasonHint => _t('Reason for declining', 'سبب الرفض');
   List<String> get declineReasons => ar
       ? [
           'بيانات العميل غير كافية',
           'يلزم تقييم المخاطر',
-          'يلزم موافقة المدير',
+          'الاستنتاج غير مؤكد',
           'العميل غير مؤهل',
           'أخرى'
         ]
       : [
           'Not enough client data',
           'Risk assessment needed',
-          'Manager approval needed',
+          'Inference not confirmed',
           'Client not eligible',
           'Other'
         ];
-  String get approve => _t('Approve', 'موافقة');
-  String get decline => _t('Decline', 'رفض');
-  String get auditNote => _t('Your decision is logged for audit. Session FLK-2026-1105-4521',
-      'يُسجَّل قرارك لأغراض التدقيق. الجلسة FLK-2026-1105-4521');
-  String get approvedToast =>
-      _t('Suggestion approved and logged.', 'تمت الموافقة على الاقتراح وتسجيله.');
-  String get declinedToast => _t('Suggestion declined and logged.', 'تم رفض الاقتراح وتسجيله.');
+  String get signOff => _t('Sign off', 'اعتماد');
+  String get checksNeeded =>
+      _t('Complete the three checks to approve.', 'أكمل الفحوصات الثلاثة للموافقة.');
+  String get sampledNote => _t('Reasons are sampled and reviewed by a second line.',
+      'تُراجَع عينة من الأسباب من قِبل خط رقابة ثانٍ.');
+  // Receipt
+  String get receiptTitle => _t('Decision logged', 'تم تسجيل القرار');
+  String get rDecision => _t('Decision', 'القرار');
+  String get rApproved => _t('Approved', 'موافقة');
+  String get rDeclined => _t('Declined', 'رفض');
+  String get rReason => _t('Reason', 'السبب');
+  String get rFirstRead => _t('First read', 'الرأي الأول');
+  String get rBy => _t('Signed off by', 'اعتمده');
+  String get rByValue => _t('You · relationship manager', 'أنت · مدير العلاقة');
+  String get rTime => _t('Time', 'الوقت');
+  String get rModel => _t('Model', 'النموذج');
+  String get rSession => _t('Session', 'الجلسة');
   List<String> get steps4 => ar
-      ? ['جارٍ مراجعة محفظة العملاء…', 'جارٍ البحث عن فرص التواصل…', 'جارٍ إجراء فحوصات التحقق…']
+      ? ['قراءة محفظة العملاء…', 'التحقق من سجل التواصل…', 'إجراء فحوصات السياسة…']
+      : ['Reading the client portfolio…', 'Checking contact history…', 'Running policy checks…'];
+
+  // Talk to a person, always available
+  String get talkToPerson => _t('Talk to a person', 'التحدث مع شخص');
+  String get qPerson => _t('I’d like to talk to a person.', 'أود التحدث مع شخص.');
+  String get personAnswer => _t(
+      'Of course. Choose how you’d like to reach us.', 'بالتأكيد. اختر طريقة التواصل التي تناسبك.');
+
+  // Feedback on any answer
+  String get wrongAnswer => _t('Something wrong with this answer?', 'هل هناك خطأ في هذه الإجابة؟');
+  String get wrongThanks =>
+      _t('Thanks. A person will review this answer.', 'شكراً. سيراجع شخص هذه الإجابة.');
+
+  // Stop while working
+  String get stop => _t('Stop', 'إيقاف');
+  String get stopped => _t('Stopped. Nothing was changed.', 'تم الإيقاف. لم يتغير شيء.');
+
+  // Estimated / unsynced items (spending)
+  String get estItemsTitle => _t('Estimated items', 'العناصر المقدَّرة');
+  String get estItemsLead => _t(
+      'Card payments from Oct 15–17, when card data was incomplete. Amounts are from merchant authorisations and may change.',
+      'مدفوعات البطاقة من 15 إلى 17 أكتوبر، حين كانت بيانات البطاقات غير مكتملة. المبالغ من تفويضات التجار وقد تتغير.');
+  List<(String, String, String)> get estItems => ar
+      ? [
+          ('سوبرماركت', '15 أكتوبر', '1,240'),
+          ('مطعم', '15 أكتوبر', '865'),
+          ('صيدلية', '16 أكتوبر', '612'),
+          ('محطة وقود', '16 أكتوبر', '540'),
+          ('متجر إلكترونيات', '17 أكتوبر', '718'),
+          ('طلب عبر الإنترنت', '17 أكتوبر', '310')
+        ]
       : [
-          'Reviewing the client portfolio…',
-          'Looking for contact opportunities…',
-          'Running validation checks…'
+          ('Supermarket', 'Oct 15', '1,240'),
+          ('Restaurant', 'Oct 15', '865'),
+          ('Pharmacy', 'Oct 16', '612'),
+          ('Fuel station', 'Oct 16', '540'),
+          ('Electronics store', 'Oct 17', '718'),
+          ('Online order', 'Oct 17', '310')
         ];
+  String get atmItemsTitle => _t('Not yet synced', 'لم تتم مزامنته');
+  String get atmItemsLead => _t(
+      'Cash withdrawals made at offline ATMs. They’ll appear once the ATM reconnects.',
+      'سحوبات نقدية من صرافات آلية غير متصلة. ستظهر عند إعادة اتصال الصراف.');
+  List<(String, String, String)> get atmItems => ar
+      ? [
+          ('صراف آلي · مول المدينة', '29 أكتوبر', '1,500'),
+          ('صراف آلي · المطار', '30 أكتوبر', '1,000')
+        ]
+      : [('ATM · City Mall', 'Oct 29', '1,500'), ('ATM · Airport', 'Oct 30', '1,000')];
 
   // Free text
   String get fallback => _t('This demo answers four scripted examples. Open Examples to run one.',
