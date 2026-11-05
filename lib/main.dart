@@ -1,50 +1,42 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'theme/app_theme.dart';
-import 'screens/chat_screen.dart';
-import 'language_provider.dart';
+import 'app_scope.dart';
+import 'screens/demo_screen.dart';
+import 'theme/falak_theme.dart';
 
 void main() {
-  runApp(const CommercialBankApp());
+  runApp(const FalakApp());
 }
 
-class CommercialBankApp extends StatefulWidget {
-  const CommercialBankApp({super.key});
+class FalakApp extends StatefulWidget {
+  const FalakApp({super.key});
 
   @override
-  State<CommercialBankApp> createState() => _CommercialBankAppState();
+  State<FalakApp> createState() => _FalakAppState();
 }
 
-class _CommercialBankAppState extends State<CommercialBankApp> {
+class _FalakAppState extends State<FalakApp> {
   bool _isArabic = false;
-
-  void _toggleLanguage() {
-    setState(() => _isArabic = !_isArabic);
-  }
-
-  ThemeData get _theme {
-    if (!_isArabic) return AppTheme.theme;
-    return AppTheme.theme.copyWith(
-      textTheme: GoogleFonts.notoSansArabicTextTheme(AppTheme.theme.textTheme),
-    );
-  }
+  bool? _isDark; // null = follow the system until the user chooses
 
   @override
   Widget build(BuildContext context) {
-    return LanguageProvider(
+    final systemDark = MediaQuery.platformBrightnessOf(context) == Brightness.dark;
+    final isDark = _isDark ?? systemDark;
+
+    return AppScope(
       isArabic: _isArabic,
-      toggleLanguage: _toggleLanguage,
+      isDark: isDark,
+      setArabic: (v) => setState(() => _isArabic = v),
+      toggleTheme: () => setState(() => _isDark = !isDark),
       child: MaterialApp(
-        title: 'Commercial Bank AI Assistant',
+        title: 'Falak · AI assistant concept',
         debugShowCheckedModeBanner: false,
-        theme: _theme,
-        // Wrap all content in Directionality so every widget mirrors correctly.
+        theme: buildFalakTheme(isDark ? Brightness.dark : Brightness.light),
         builder: (context, child) => Directionality(
-          textDirection:
-              _isArabic ? TextDirection.rtl : TextDirection.ltr,
+          textDirection: _isArabic ? TextDirection.rtl : TextDirection.ltr,
           child: child!,
         ),
-        home: const ChatScreen(),
+        home: const DemoScreen(),
       ),
     );
   }

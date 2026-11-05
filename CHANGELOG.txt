@@ -1,3 +1,27 @@
+CHANGELOG — 2026-11-05
+======================
+
+Redesign: Falak (fictional bank), visual phase
+-----------------------------------------------
+
+SUMMARY
+Replaced the borrowed bank identity with Falak, a fictional bank, and rebuilt
+the interface around banknote security printing: intaglio-green ink on cool
+paper, one guilloche rosette, an engraved temple emblem. Light and dark themes,
+English and Arabic, amounts in AED.
+
+- Trust marks replace the always-visible percentage and traffic light:
+  solid = from the system, hatch = estimate, dots = not yet confirmed.
+  They read without colour and are reused in the spending strip.
+- Answers are single slips divided by hairlines; no nested cards.
+- Examples moved out of the input area: a side index on wide screens,
+  an Examples sheet on phones. Start-over button in the header.
+- Conversation renders from scenario ids, so switching language translates
+  the whole history. All strings, including accessibility labels, localised.
+- Spending shown as a range with links to the estimated items.
+- Reduced motion respected; buttons and toggles are real, focusable controls.
+
+
 CHANGELOG — 2026-04-13
 ======================
 

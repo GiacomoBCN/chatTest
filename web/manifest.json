@@ -1,11 +1,11 @@
 {
-    "name": "chat_test",
-    "short_name": "chat_test",
+    "name": "Falak \u00b7 AI assistant concept",
+    "short_name": "Falak",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#E9EDE7",
+    "theme_color": "#1D5A45",
+    "description": "Concept for an AI banking assistant that shows where each answer comes from. Fictional bank.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
