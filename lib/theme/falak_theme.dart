@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 /// Falak colour roles. Inks from banknote security printing:
-/// a deep intaglio green on cool cotton paper, and a foil tone kept
-/// for the staff/accountability role only.
+/// a deep intaglio green on cool cotton paper. Staff surfaces use the same
+/// ink on a tinted band, so the role reads from label and icon, not hue.
 @immutable
 class FalakColors extends ThemeExtension<FalakColors> {
   final Color ground; // page behind everything
@@ -52,8 +52,8 @@ class FalakColors extends ThemeExtension<FalakColors> {
     onInk: Color(0xFFFFFFFF),
     userBubble: Color(0xFF1D5A45),
     onUserBubble: Color(0xFFFFFFFF),
-    staff: Color(0xFF7A4321),
-    staffSoft: Color(0xFFF3E9E1),
+    staff: Color(0xFF1D5A45),
+    staffSoft: Color(0xFFE3EEE8),
     guilloche: Color(0x2E1D5A45),
     danger: Color(0xFFA3281C),
   );
@@ -70,8 +70,8 @@ class FalakColors extends ThemeExtension<FalakColors> {
     onInk: Color(0xFF0B110F),
     userBubble: Color(0xFF22362E),
     onUserBubble: Color(0xFFE6ECE7),
-    staff: Color(0xFFE2A882),
-    staffSoft: Color(0xFF2B1F17),
+    staff: Color(0xFF8CC7AE),
+    staffSoft: Color(0xFF17261F),
     guilloche: Color(0x298CC7AE),
     danger: Color(0xFFF08A7E),
   );
